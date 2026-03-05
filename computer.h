@@ -9,6 +9,6 @@ typedef struct Computers {
 
 typedef struct CNode {
 	Computers computer;
-	Computers* curr;
-	Computers* next;
+	CNode* curr;
+	CNode* next;
 }CNode;

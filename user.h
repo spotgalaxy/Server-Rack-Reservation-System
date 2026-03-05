@@ -11,6 +11,9 @@ typedef struct Users {
 
 typedef struct UNode {
 	Users user;
-	Users* curr;
-	Users* next;
+	UNode* curr;
+	UNode* next;
 }UNode;
+
+void userMnue();
+void Booking();

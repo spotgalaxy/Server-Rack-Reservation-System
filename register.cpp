@@ -1,66 +1,37 @@
 #include "register.h"
-#include "user.h"
 
 void Register() {
-	Users newUser = { 0 };
-	Users user = { 0 };
+    Users newUser = { 0 };
 
-	int id = 0;
+    printf("Enter your name: ");
+    scanf("%s", newUser.name);
 
-	char buffer[256];
+    printf("Enter your password: ");
+    scanf(" %s", newUser.password);
 
-	printf("Enter your name: ");
-	scanf("%s", newUser.name);
+    printf("Enter your tel: ");
+    scanf(" %s", newUser.tel);
 
-	printf("Enter your password: ");
-	scanf(" %s", newUser.password);
+    // 1. 从文件加载现有用户到链表
+    UNode* userList = loadUsersFromFile("userList.txt");
 
-	printf("Enter your tel: ");
-	scanf(" %s", newUser.tel);
+    // 2. 计算新用户的ID (最大ID + 1)
+    int maxId = getMaxId(userList);
+    char utid[7];
+    sprintf(utid, "U%05d", maxId + 1);
+    strcpy(newUser.Uid, utid);
+    newUser.isLegal = true;
 
+    // 3. 将新用户添加到链表
+    addNode(&userList, newUser);
 
-	puts("Loading...");
-	newUser.isLegal = true;
+    // 4. 将整个链表保存回文件 (覆盖原文件)
+    saveUsersToFile(userList, "userList.txt");
 
-	FILE* fp = fopen("userList.txt", "a+");
+    // 5. 释放链表内存
+    freeList(userList);
 
-	if (!fp) {
-
-		perror("open failed");
-		return;
-	}
-
-	while (fgets(buffer, sizeof(buffer), fp)) {
-		buffer[strcspn(buffer, "\n")] = '\0';
-
-		sscanf(buffer, "%6[^ ] %14[^ ] %20[^ ] %11[^ ]",
-			user.Uid,
-			user.name,
-			user.password,
-			user.tel
-		);
-
-		char tuid[7] = { 0 };
-		memcpy(tuid, user.Uid + 1, 5);
-
-		char* end;
-
-		id = (int)strtol(tuid, &end, 10);
-	}
-	char utid[7];
-
-	sprintf(utid, "U%05d", id + 1);
-
-	strcpy(newUser.Uid, utid);
-
-	fprintf(fp, "%s %s %s %s\n",
-		newUser.Uid,
-		newUser.name,
-		newUser.password,
-		newUser.tel
-	);
-
-	fclose(fp);
-
-	puts("Finished!");
+    printf("Registration successful!\nYour ID is: %s\n", newUser.Uid);
+    puts("\nFinished!");
+    Sleep(1500);
 }

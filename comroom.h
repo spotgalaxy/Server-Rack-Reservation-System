@@ -8,6 +8,6 @@ typedef struct Comrooms {
 
 typedef struct CRNode {
 	Comrooms comroom;
-	Comrooms* curr;
-	Comrooms* next;
+	CRNode* curr;
+	CRNode* next;
 }CRNode;

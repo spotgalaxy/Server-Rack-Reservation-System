@@ -1,53 +1,76 @@
 #include "logIn.h"
-#include "user.h"
 
-void LogIn() {
-	Users user = { 0 };
-	char buffer[256] = { 0 };
 
-	bool isFound = false;
+void logIn() {
+    puts("Choice your identity: \n");
+    puts("1.user\n2.admin\n");
 
-	printf("Enter your name: ");
-	char name[15] = { 0 };
-	scanf("%s", name);
-	printf("Enter your password: ");
-	char pwd[21] = { 0 };
-	scanf("%s", pwd);
+    printf("Enter your choice: ");
+    int choice;
+    scanf("%d", &choice);
 
-	FILE* fp = fopen("userList.txt", "a+");
+    switch (choice) {
+    case 1:
+        userLogIn();
+        break;
+    case 2:
+        adminLogIn();
+        break;
+    default:
+        puts("Enter incorrot number!");
+        Sleep(1500);
+    }
+}
 
-	if (!fp) {
+void userLogIn() {
+    char name[15] = { 0 };
+    char pwd[21] = { 0 };
 
-		perror("open failed");
-		return;
-	}
+    printf("\nEnter your name: ");
+    scanf("%s", name);
+    printf("Enter your password: ");
+    scanf("%s", pwd);
 
-	while (fgets(buffer, sizeof(buffer), fp)) {
-		buffer[strcspn(buffer, "\n")] = '\0';
+    puts("\nLoading...");
 
-		sscanf(buffer, "%6[^ ] %14[^ ] %20[^ ] %11[^ ]",
-			user.Uid,
-			user.name,
-			user.password,
-			user.tel
-		);
+    // 1. 从文件加载用户链表
+    UNode* userList = loadUsersFromFile("userList.txt");
 
-		//printf("%s %s %s %s\n", user.Uid, user.name, user.password, user.tel);
+    if (userList == NULL) {
+        puts("No users found in the system or file error.");
+        system("pause");
+        return;
+    }
 
-		if (strcmp(user.name, name) == 0 && strcmp(user.password, pwd) == 0) {
-			isFound = true;
-			break;
-		}
-	}
+    // 2. 在链表中查找匹配的用户
+    UNode* foundNode = findUser(userList, name, pwd);
 
-	if (isFound) {
-		puts("LogIn success!");
-		Sleep(1500);
+    if (foundNode) {
+        puts("\nLogIn success!");
+        Sleep(1500);
+        system("cls");
 
-		//用户功能
-	}
-	else {
-		puts("LogIn fail!");
-		system("pause");
-	}
+        userMnue();
+    }
+    else {
+        puts("LogIn fail! Incorrect username or password.");
+        system("pause");
+    }
+
+    // 3. 无论成功与否，都要释放链表内存
+    freeList(userList);
+}
+
+void adminLogIn() {
+    printf("\nEnter password: ");
+    char pwd[21] = { 0 };
+    scanf(" %s", pwd);
+
+    if (strcmp(pwd, adminPwd) == 0) {
+        puts("Success!");
+        Sleep(1500);
+        system("cls");
+
+        adminMnue();
+    }
 }
