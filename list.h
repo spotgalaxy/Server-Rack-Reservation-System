@@ -18,7 +18,9 @@ void saveUsersToFile(UNode* head, const char* filename);
 UNode* findUser(UNode* head, const char* name, const char* pwd);
 
 // 获取链表中最大的ID数值 (用于生成新ID)
-int getMaxId(UNode* head);
+//int getMaxId(UNode* head);
 
 // 释放链表内存
 void freeList(UNode* head);
+
+void showUsers(UNode* head);

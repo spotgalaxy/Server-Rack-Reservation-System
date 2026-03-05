@@ -57,7 +57,7 @@ UNode* loadUsersFromFile(const char* filename) {
 
         Users tempUser = { 0 };
        
-        int count = sscanf(buffer, "%6[^ ] %14[^ ] %20[^ ] %11[^ ]",
+        int count = sscanf(buffer, "%8[^ ] %14[^ ] %20[^ ] %11[^ ]",
             tempUser.Uid, tempUser.name, tempUser.password, tempUser.tel);
 
         if (count >= 4) {
@@ -107,26 +107,26 @@ UNode* findUser(UNode* head, const char* name, const char* pwd) {
 }
 
 // 获取最大ID
-int getMaxId(UNode* head) {
-    int maxId = 0;
-    UNode* current = head;
-
-    while (current != NULL) {
-        const char* uid = current->user.Uid;
-        if (uid && strlen(uid) > 1 && uid[0] == 'U') {
-            char numPart[7] = { 0 };
-            strncpy(numPart, uid + 1, 5);
-
-            char* endPtr;
-            long val = strtol(numPart, &endPtr, 10);
-            if (val > maxId) {
-                maxId = (int)val;
-            }
-        }
-        current = current->next;
-    }
-    return maxId;
-}
+//int getMaxId(UNode* head) {
+//    int maxId = 0;
+//    UNode* current = head;
+//
+//    while (current != NULL) {
+//        const char* uid = current->user.Uid;
+//        if (uid && strlen(uid) > 1 && uid[0] == 'U') {
+//            char numPart[7] = { 0 };
+//            strncpy(numPart, uid + 1, 5);
+//
+//            char* endPtr;
+//            long val = strtol(numPart, &endPtr, 10);
+//            if (val > maxId) {
+//                maxId = (int)val;
+//            }
+//        }
+//        current = current->next;
+//    }
+//    return maxId;
+//}
 
 // 释放链表
 void freeList(UNode* head) {
@@ -136,5 +136,17 @@ void freeList(UNode* head) {
         head = head->next;
 
         free(temp);
+    }
+}
+
+void showUsers(UNode* head) {
+    UNode* current = head;
+    while (current) {
+        puts("***********************************************\n");
+        printf("%5s\t %10s\t %5s\t %10s\n", "ID", "Name", "Tel", "Ability");
+        printf("%s\t %2s\t %5s\t %10s\n\n", current->user.Uid, current->user.name, current->user.tel, current->user.isLegal ? "true" : "false");
+        puts("***********************************************\n");
+
+        current = current->next;
     }
 }

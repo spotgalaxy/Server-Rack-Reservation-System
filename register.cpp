@@ -6,6 +6,9 @@ void Register() {
     printf("Enter your name: ");
     scanf("%s", newUser.name);
 
+    printf("Enter your studentId: ");
+    scanf("%s", newUser.Uid);
+
     printf("Enter your password: ");
     scanf(" %s", newUser.password);
 
@@ -16,10 +19,10 @@ void Register() {
     UNode* userList = loadUsersFromFile("userList.txt");
 
     // 2. 计算新用户的ID (最大ID + 1)
-    int maxId = getMaxId(userList);
+    /*int maxId = getMaxId(userList);
     char utid[7];
     sprintf(utid, "U%05d", maxId + 1);
-    strcpy(newUser.Uid, utid);
+    strcpy(newUser.Uid, utid);*/
     newUser.isLegal = true;
 
     // 3. 将新用户添加到链表
@@ -31,7 +34,7 @@ void Register() {
     // 5. 释放链表内存
     freeList(userList);
 
-    printf("Registration successful!\nYour ID is: %s\n", newUser.Uid);
+    printf("Registration successful!\n");
     puts("\nFinished!");
     Sleep(1500);
 }

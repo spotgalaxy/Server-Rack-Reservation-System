@@ -1,26 +1,56 @@
 #include "admin.h"
 
-char adminPwd[21] = "123456";
+const char* adminPwd = "1";
 
 void adminMnue() {
-	puts("Admin Mnue\n");
+	while (1) {
+		puts("\tAdmin Mnue\n");
 
-	puts("1.Check all users\n2.Check comrooms info\n3.Check computers\n");
-	printf("Enter your choice: ");
-	int choice;
-	scanf("%d", &choice);
+		puts("1.Check all users\n2.Check comrooms info\n3.Check computers\n0.Back to Main Mnue\n");
+		printf("Enter your choice: ");
+		int choice;
+		scanf("%d", &choice);
 
-	switch (choice) {
-	case 1:
-		//
-		break;
-	case 2:
-		//
-		break;
-	case 3:
-		//
-		break;
-	default:
-		puts("Wrong number!");
+		switch (choice) {
+		case 1:
+			checkAllUsers();
+			break;
+		case 2:
+			checkRoomInfo();
+			break;
+		case 3:
+			checkComputers();
+			break;
+		case 0:
+			break;
+		default:
+			puts("\nWrong number! Choose again!\n");
+		}
+
+		if (0 == choice) {
+			break;
+		}
 	}
+	}
+
+void checkAllUsers() {
+	UNode* userList = loadUsersFromFile("userList.txt");
+
+	showUsers(userList);
+
+	if (userList == NULL) {
+		puts("No users found in the system or file error.");
+		system("pause");
+		return;
+	}
+
+	freeList(userList);
+}
+
+void checkRoomInfo() {
+
+}
+
+void checkComputers() {
+
 }
