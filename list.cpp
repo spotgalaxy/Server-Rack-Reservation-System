@@ -1,5 +1,6 @@
 #include "list.h"
 
+//用户管理链表
 
 // 创建新节点
 UNode* createNode(Users user) {
@@ -106,28 +107,6 @@ UNode* findUser(UNode* head, const char* name, const char* pwd) {
     return NULL;
 }
 
-// 获取最大ID
-//int getMaxId(UNode* head) {
-//    int maxId = 0;
-//    UNode* current = head;
-//
-//    while (current != NULL) {
-//        const char* uid = current->user.Uid;
-//        if (uid && strlen(uid) > 1 && uid[0] == 'U') {
-//            char numPart[7] = { 0 };
-//            strncpy(numPart, uid + 1, 5);
-//
-//            char* endPtr;
-//            long val = strtol(numPart, &endPtr, 10);
-//            if (val > maxId) {
-//                maxId = (int)val;
-//            }
-//        }
-//        current = current->next;
-//    }
-//    return maxId;
-//}
-
 // 释放链表
 void freeList(UNode* head) {
     UNode* temp;
@@ -141,7 +120,7 @@ void freeList(UNode* head) {
 
 void showUsers(UNode* head) {
     UNode* current = head;
-    while (current) {
+    while (current != NULL) {
         puts("***********************************************\n");
         printf("%5s\t %10s\t %5s\t %10s\n", "ID", "Name", "Tel", "Ability");
         printf("%s\t %2s\t %5s\t %10s\n\n", current->user.Uid, current->user.name, current->user.tel, current->user.isLegal ? "true" : "false");
@@ -150,3 +129,283 @@ void showUsers(UNode* head) {
         current = current->next;
     }
 }
+
+//机房管理链表
+
+// 创建新节点
+CRNode* createNode(Comrooms comroom) {
+    CRNode* newNode = (CRNode*)malloc(sizeof(CRNode));
+    if (!newNode) {
+        perror("Failed to allocate memory for CRNode");
+        return NULL;
+    }
+
+    newNode->comroom = comroom;
+
+    // 初始化指针
+    newNode->next = NULL;
+    newNode->curr = NULL;
+
+    return newNode;
+}
+
+void addNode(CRNode** head, Comrooms comroom) {
+    CRNode* newNode = createNode(comroom);
+    if (!newNode) return;
+
+    if (*head == NULL) {
+        *head = newNode;
+        return;
+    }
+
+    CRNode* current = *head;
+    while (current->next != NULL) {
+        current = current->next;
+    }
+
+    current->next = newNode;
+}
+
+void freeList(CRNode* head) {
+    CRNode* temp;
+    while (head != NULL) {
+        temp = head;
+        head = head->next;
+
+        free(temp);
+    }
+}
+
+CRNode* loadComroomsFromFile(const char* filename) {
+    CRNode* head = NULL;
+    FILE* fp = fopen(filename, "r");
+
+    if (!fp) {
+        // 文件不存在视为空链表，不报错
+        return NULL;
+    }
+
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), fp)) {
+        // 去除换行符
+        buffer[strcspn(buffer, "\n\r")] = '\0';
+        if (strlen(buffer) == 0) continue;
+
+        Comrooms tempComrooms = { 0 };
+
+        sscanf(buffer, "%8[^ ] %d",
+            tempComrooms.CRid, tempComrooms.maxCom);
+
+        tempComrooms.isOpen = true;
+        addNode(&head, tempComrooms);
+        
+    }
+
+    fclose(fp);
+
+    return head;
+}
+
+//获取最大ID
+int getMaxId(CRNode* head) {
+    int maxId = 0;
+    CRNode* current = head;
+
+    while (current != NULL) {
+        const char* crid = current->comroom.CRid;
+        if (crid && strlen(crid) > 1 && crid[0] == 'C' && crid[1] == 'R') {
+            char numPart[7] = { 0 };
+            strncpy(numPart, crid + 1, 5);
+
+            char* endPtr;
+            long val = strtol(numPart, &endPtr, 10);
+            if (val > maxId) {
+                maxId = (int)val;
+            }
+        }
+        current = current->next;
+    }
+    return maxId;
+}
+
+void saveComroomsToFile(CRNode* head, const char* filename) {
+    FILE* fp = fopen(filename, "w");
+    if (!fp) {
+        perror("Failed to open file for saving");
+        return;
+    }
+
+    CRNode* current = head;
+    while (current != NULL) {
+        // 访问节点内的 comroom 成员
+        fprintf(fp, "%s %d\n",
+            current->comroom.CRid,
+            current->comroom.maxCom
+            );
+
+        current = current->next;
+    }
+
+    fclose(fp);
+}
+
+CRNode* findComrooms(CRNode* head, const char* CRid) {
+    CRNode* current = head;
+    while (current != NULL) {
+        if (strcmp(CRid, current->comroom.CRid) == 0) {
+            return current;
+        }
+    }
+    return NULL;
+}
+
+void showComrooms(CRNode* head) {
+    CRNode* current = head;
+    while (current != NULL) {
+        puts("***********\n");
+        printf("%s\t %5s\t %5s\n", "CRID", "maxCom", "Open");
+        printf("%s\t %5d\t %5s\n\n", current->comroom.CRid, current->comroom.maxCom, current->comroom.isOpen ? "true" : "false");
+        puts("***********\n");
+    }
+}
+
+
+
+//计算机管理链表
+
+CNode* createNode(Computers computer) {
+    CNode* newNode = (CNode*)malloc(sizeof(CNode));
+    if (!newNode) {
+        perror("Failed to allocate memory for CNode");
+        return NULL;
+    }
+
+    newNode->computer = computer;
+
+    newNode->curr = NULL;
+    newNode->next = NULL;
+
+    return newNode;
+}
+
+void addNode(CNode** head, Computers computer) {
+    CNode* newNode = createNode(computer);
+    if (!newNode) return;
+
+    if (*head == NULL) {
+        *head = newNode;
+        return;
+    }
+
+    CNode* current = *head;
+    while (current->next != NULL) {
+        current = current->next;
+    }
+
+    current->next = newNode;
+}
+
+void freeList(CNode* head) {
+    CNode* temp;
+    while (head != NULL) {
+        temp = head;
+        head = head->next;
+
+        free(temp);
+    }
+}
+
+CNode* loadComputersFromFile(const char* filename) {
+    CNode* head = NULL;
+    FILE* fp = fopen(filename, "r");
+
+    if (!fp) {
+        // 文件不存在视为空链表，不报错
+        return NULL;
+    }
+
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), fp)) {
+        // 去除换行符
+        buffer[strcspn(buffer, "\n\r")] = '\0';
+        if (strlen(buffer) == 0) continue;
+
+        Computers tempComputers = { 0 };
+
+        sscanf(buffer, "%8[^ ] %8[^ ]",
+            tempComputers.CRid, tempComputers.Cid);
+
+        tempComputers.isOpen = true;
+        addNode(&head, tempComputers);
+
+    }
+
+    fclose(fp);
+
+
+    return head;
+}
+
+int getMaxId(CNode* head) {
+    int maxId = 0;
+    CNode* current = head;
+
+    while (current != NULL) {
+        const char* cid = current->computer.CRid;
+        if (cid && strlen(cid) > 1 && cid[0] == 'C') {
+            char numPart[7] = { 0 };
+            strncpy(numPart, cid + 1, 5);
+
+            char* endPtr;
+            long val = strtol(numPart, &endPtr, 10);
+            if (val > maxId) {
+                maxId = (int)val;
+            }
+        }
+        current = current->next;
+    }
+
+    return maxId;
+}
+
+void saveComputersToFile(CNode* head, const char* filename) {
+    FILE* fp = fopen(filename, "w");
+    if (!fp) {
+        perror("Failed to open file for saving");
+        return;
+    }
+
+    CNode* current = head;
+    while (current != NULL) {
+        // 访问节点内的 computer 成员
+        fprintf(fp, "%s %s\n",
+            current->computer.CRid,
+            current->computer.Cid
+        );
+
+        current = current->next;
+    }
+
+    fclose(fp);
+}
+
+CNode* findComputers(CNode* head, const char* CRid, const char* Cid) {
+    CNode* current = head;
+    while (current != NULL) {
+        if (strcmp(CRid, current->computer.CRid) == 0 && strcmp(Cid, current->computer.Cid) == 0) {
+            return current;
+        }
+    }
+    return NULL;
+}
+
+void showComputers(CNode* head) {
+    CNode* current = head;
+    while (current != NULL) {
+        puts("***********\n");
+        printf("%s\t %5s\t %5s\n", "CRID", "CID", "Open");
+        printf("%s\t %5d\t %5s\n\n", current->computer.CRid, current->computer.Cid, current->computer.isOpen ? "true" : "false");
+        puts("***********\n");
+    }
+}
+

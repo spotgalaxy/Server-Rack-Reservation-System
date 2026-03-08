@@ -5,5 +5,5 @@
 #include "admin.h"
 
 void logIn();
-void userLogIn();
+bool userLogIn(char* name, char* pwd);
 void adminLogIn();

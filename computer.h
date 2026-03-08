@@ -4,7 +4,7 @@
 typedef struct Computers {
 	char Cid[7];
 	char CRid[7];
-	bool isUsed;
+	bool isOpen;
 }Computers;
 
 typedef struct CNode {

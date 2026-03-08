@@ -1,10 +1,10 @@
 #include "register.h"
 #include "logIn.h"
-//#include "ui_main.h"
+#include "ui_main.h"
 
 int main() {
-	//initMnue();
-	while (1) {
+	initMnue();
+	/*while (1) {
 		puts("Server-Rack-Reservation-System\n");
 		puts("1.log in\n2.register\n0.exit\n");
 
@@ -27,7 +27,7 @@ int main() {
 			break;
 		}
 		system("cls");
-	}
+	}*/
 	
 	return 0;
 }

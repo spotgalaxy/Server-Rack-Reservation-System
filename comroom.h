@@ -3,6 +3,7 @@
 
 typedef struct Comrooms {
 	char CRid[7];
+	int maxCom;
 	bool isOpen;
 }Comrooms;
 
