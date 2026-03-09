@@ -1,9 +1,9 @@
 #include "register.h"
 
-void Register() {
+void Register(char* name, char* id, char* pwd, char* tel) {
     Users newUser = { 0 };
 
-    printf("Enter your name: ");
+   /* printf("Enter your name: ");
     scanf("%s", newUser.name);
 
     printf("Enter your studentId: ");
@@ -13,7 +13,13 @@ void Register() {
     scanf(" %s", newUser.password);
 
     printf("Enter your tel: ");
-    scanf(" %s", newUser.tel);
+    scanf(" %s", newUser.tel);*/
+
+
+    strcpy(newUser.name, name);
+    strcpy(newUser.Uid, id);
+    strcpy(newUser.password, pwd);
+    strcpy(newUser.tel, tel);
 
     // 1. 从文件加载现有用户到链表
     UNode* userList = loadUsersFromFile("userList.txt");
@@ -34,7 +40,7 @@ void Register() {
     // 5. 释放链表内存
     freeList(userList);
 
-    printf("Registration successful!\n");
+    /*printf("Registration successful!\n");
     puts("\nFinished!");
-    Sleep(1500);
+    Sleep(1500);*/
 }

@@ -6,4 +6,4 @@
 
 void logIn();
 bool userLogIn(char* name, char* pwd);
-void adminLogIn();
+bool adminLogIn(char* pwd);

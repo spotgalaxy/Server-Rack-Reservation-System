@@ -67,16 +67,20 @@ bool userLogIn(char* name, char* pwd) {
     return res;
 }
 
-void adminLogIn() {
-    printf("\nEnter password: ");
+bool adminLogIn(char* pwd) {
+    bool res = false;
+    /*printf("\nEnter password: ");
     char pwd[21] = { 0 };
-    scanf(" %s", pwd);
+    scanf(" %s", pwd);*/
 
     if (strcmp(pwd, adminPwd) == 0) {
-        puts("Success!");
+        /*puts("Success!");
         Sleep(1500);
         system("cls");
 
-        adminMnue();
+        adminMnue();*/
+        res = true;
     }
+
+    return res;
 }

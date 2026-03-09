@@ -3,6 +3,7 @@
 #include <graphics.h>
 #include "header.h"
 #include "ui_logIn.h"
+#include "ui_register.h"
 
 extern char title[20];
 
