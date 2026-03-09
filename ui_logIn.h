@@ -4,7 +4,8 @@
 #include <graphics.h>
 #include "header.h"
 #include "logIn.h"
-#include "ui_adminFunc.h"
+#include "ui_AdminFunc.h"
+#include "ui_userFunc.h"
 
 void initUserlogIn();
 

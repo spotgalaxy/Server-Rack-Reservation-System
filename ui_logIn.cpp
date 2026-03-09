@@ -353,5 +353,5 @@ void initUserlogIn() {
 		delay_fps(60);  // 关键：让系统处理输入框消息
 	}
 
-	getch();
+	initUserFunc();
 }

@@ -21,6 +21,8 @@ void initMnue() {
 
 	setfillcolor(PINK);
 
+	cleardevice();
+
 	setfont(TitleCharSize, 0, "»ªÎÄÐÐ¿¬");
 	outtextxy(215, 45, title);
 
