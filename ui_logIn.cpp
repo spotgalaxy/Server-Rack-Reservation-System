@@ -144,7 +144,7 @@ void initAdminlogIn() {
 	char pwd[21] = { 0 };
 
 	setfont(60, 0, "华文行楷");
-	outtextxy(380, 45, "注册");
+	outtextxy(310, 45, "管理员登录");
 
 	setlinewidth(2);
 	setlinecolor(LIGHTGRAY);
