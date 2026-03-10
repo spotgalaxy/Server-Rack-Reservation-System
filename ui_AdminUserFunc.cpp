@@ -278,6 +278,8 @@ void modifyUser() {
 		outtextxy(650, 350, "未找到该学生!");
 	}
 
+	freeList(userList);
+
 	getch();
 }
 
@@ -320,6 +322,7 @@ char* getUserId() {
 
 			switch (msg.key) {
 			case key_esc:
+				editId.destroy();
 				running = false;
 				break;
 			case key_enter:
@@ -487,10 +490,7 @@ void initModifyUser(UNode* current, UNode* head) {
 
 								outtextxy(650, 350, "修改成功！");
 								getch();
-								editName.destroy();
-								editId.destroy();
-								editPwd.destroy();
-								editTel.destroy();
+								
 								running = false;
 							}
 							else {
@@ -501,8 +501,12 @@ void initModifyUser(UNode* current, UNode* head) {
 						}
 					}
 				}
+				editName.destroy();
+				editId.destroy();
+				editPwd.destroy();
+				editTel.destroy();
 				saveUsersToFile(head, "userList.txt");
-				freeList(head);
+				
 				return;
 			}
 		}
@@ -557,6 +561,8 @@ void deleteUser() {
 	else {
 		outtextxy(650, 350, "删除失败！");
 	}
+
+	freeList(userList);
 
 	getch();
 }
@@ -627,7 +633,7 @@ bool initDeleteUser(UNode* current, UNode** head, char* id) {
 	}
 	
 	saveUsersToFile(*head, "userList.txt");
-	freeList(*head);
+	
 	return run;
 
 }

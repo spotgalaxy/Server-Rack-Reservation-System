@@ -258,7 +258,7 @@ int getMaxId(CRNode* head) {
         const char* crid = current->comroom.CRid;
         if (crid && strlen(crid) > 1 && crid[0] == 'C' && crid[1] == 'R') {
             char numPart[8] = { 0 };
-            strncpy(numPart, crid + 1, 5);
+            strncpy(numPart, crid + 2, 5);
 
             char* endPtr;
             long val = strtol(numPart, &endPtr, 10);

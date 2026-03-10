@@ -195,7 +195,7 @@ void initAdminlogIn() {
 					if (adminLogIn(pwd)) {
 						outtextxy(400, 500, "登录成功！");
 						getch();
-						editPwd.destroy();
+						
 						running = false;
 					}
 					else {
@@ -210,10 +210,10 @@ void initAdminlogIn() {
 			}
 
 		}
-
+		
 		delay_fps(60);
 	}
-
+	editPwd.destroy();
 	initAdminFunc();
 }
 
@@ -328,9 +328,7 @@ void initUserlogIn() {
 					if (userLogIn(name, pwd)) {
 						outtextxy(400, 500, "登录成功！");
 						getch();
-						editName.destroy();
-						editId.destroy();
-						editPwd.destroy();
+						
 						running = false;
 					}	
 					else {
@@ -352,6 +350,8 @@ void initUserlogIn() {
 
 		delay_fps(60);  // 关键：让系统处理输入框消息
 	}
-
+	editName.destroy();
+	editId.destroy();
+	editPwd.destroy();
 	initUserFunc();
 }

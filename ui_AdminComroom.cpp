@@ -192,7 +192,7 @@ void initAdminComroom() {
 			}
 
 			if (mx >= 350 - gap && mx <= 350 + gw + gap && my >= 500 - gap && my <= 500 + gh + gap && msg.is_left() && msg.is_up()) {
-				//删
+				deleteComroom();
 
 				cleardevice();
 				setfont(60, 0, "华文行楷");
@@ -266,24 +266,19 @@ void addComroom() {
 
 	CRNode* current = comroomList;
 
-	while (current != NULL) {
-		current = current->next;
-	}
-
 	cleardevice();
 
-	if (!initAddComroom(current, &comroomList)) {
+	if (!initAddComroom(&comroomList)) {
 		outtextxy(650, 350, "添加失败！");
 		getch();
 	}
-
 
 	freeList(comroomList);
 
 	getch();
 }
 
-bool initAddComroom(CRNode* current, CRNode** head) {
+bool initAddComroom(CRNode** head) {
 	setfont(60, 0, "华文行楷");
 	outtextxy(330, 45, "添加机房");
 	setfont(20, 0, "楷体");
@@ -325,6 +320,8 @@ bool initAddComroom(CRNode* current, CRNode** head) {
 	char CRid[8] = { 0 };
 	char maxSite[10] = { 0 };
 
+	Comrooms comroom = { 0 };
+
 	while (running) {
 		if (kbhit()) {
 			key_msg msg = getkey();
@@ -340,17 +337,16 @@ bool initAddComroom(CRNode* current, CRNode** head) {
 				if (strlen(maxSite) > 0) {
 					int maxsite = atoi(maxSite);
 					int id = getMaxId(*head);
-					sprintf(CRid, "CR%4d", id + 1);
-					strcpy(current->comroom.CRid, CRid);
-					current->comroom.isOpen = true;
-					current->comroom.maxCom = maxsite;
-					
+					sprintf(CRid, "CR%04d", id + 1);
+					strcpy(comroom.CRid, CRid);
+					comroom.isOpen = true;
+					comroom.maxCom = maxsite;
+					addNode(head, comroom);
 					res = true;
 
 					outtextxy(650, 350, "添加成功！");
 					getch();
 					//editId.destroy();
-					editMaxsite.destroy();
 					running = false;
 				}
 				else {
@@ -362,11 +358,190 @@ bool initAddComroom(CRNode* current, CRNode** head) {
 			}
 		}
 	}
-	addNode(head, current->comroom);
+
+	editMaxsite.destroy();
+	
 	saveComroomsToFile(*head, "comroomList.txt");
 
-	freeList(*head);
 	return res;
 }
 
+void deleteComroom() {
+	CRNode* comroomList = loadComroomsFromFile("comroomList.txt");
+
+	if (comroomList == NULL) {
+		/*puts("No users found in the system or file error.");
+		system("pause");*/
+		return;
+	}
+
+	CRNode* current = comroomList;
+
+	char id[9] = { 0 };
+
+	cleardevice();
+
+	setfont(60, 0, "华文行楷");
+	outtextxy(330, 45, "删除机房");
+	setfont(20, 0, "楷体");
+	setlinewidth(2);
+	setlinecolor(LIGHTGRAY);
+	line(100, 120, 800, 120);
+	setlinecolor(PINK);
+
+	strcpy(id, getComroomId());
+
+	cleardevice();
+
+	setfont(60, 0, "华文行楷");
+	outtextxy(330, 45, "删除机房");
+	setfont(20, 0, "楷体");
+	setlinewidth(2);
+	setlinecolor(LIGHTGRAY);
+	line(100, 120, 800, 120);
+	setlinecolor(PINK);
+
+	bool isF = false;
+
+	while (current != NULL) {
+		if (strcmp(id, current->comroom.CRid) == 0) {
+			isF = true;
+			break;
+		}
+		current = current->next;
+	}
+
+	if (isF) {
+		if (!initDeleteComroom(current, &comroomList, id)) {
+			outtextxy(650, 350, "删除失败!");
+		}
+	}
+	else {
+		outtextxy(650, 350, "未找到该机房!");
+	}
+
+	free(comroomList);
+
+	getch();
+}
+
+char* getComroomId() {
+	char id[9] = { 0 };
+
+	int dh = textheight("机房号");
+
+	sys_edit editId;
+	editId.create(false);
+	editId.move(325, 200);
+	editId.size(250, dh + 8);
+	editId.setmaxlen(8);
+	editId.setbgcolor(PINK);
+	editId.setcolor(BLACK);
+	editId.setfont(20, 0, "宋体");
+	editId.visible(true);
+	editId.setfocus();
+
+	outtextxy(330, 180, "机房号");
+
+	bool running = true;
+
+	while (running) {
+		if (kbhit()) {
+			key_msg msg = getkey();
+
+			switch (msg.key) {
+			case key_esc:
+				editId.destroy();
+				running = false;
+				break;
+			case key_enter:
+				editId.gettext(sizeof(id), id);
+
+				if (strlen(id) > 0) {
+					editId.destroy();
+
+					int CRid = atoi(id);
+
+					sprintf(id, "CR%04d", CRid);
+					return id;
+				}
+				else {
+					outtextxy(350, 500, "请填写！");
+					getch();
+				}
+				break;
+			}
+		}
+	}
+}
+
+bool initDeleteComroom(CRNode* current, CRNode** head, char* id) {
+	xyprintf(250, 130, "%4s\t %12s\t %12s\n", "机房号", "最大容纳量", "是否开放");
+	xyprintf(250, 150, "%s\t %8d\t %14s\n", current->comroom.CRid, current->comroom.maxCom, current->comroom.isOpen ? "开放" : "不开放");
+
+	int gw = textwidth("删除");
+	int gh = textheight("删除");
+
+	fillrect(650 - 5, 150 - 5, 650 + 5 + gw, 150 + 5 + gh);
+
+	outtextxy(650, 150, "删除");
+
+	bool res = false;
+
+	while (1) {
+		while (mousemsg()) {
+			mouse_msg msg = getmouse();
+
+			int mx = msg.x;
+			int my = msg.y;
+
+			bool xis = false;
+
+			if (mx >= 650 - 5 && mx <= 650 + 5 + gw && my >= 150 - 5 && my <= 150 + 5 + gh) {
+				xis = true;
+			}
+
+			if (xis) {
+				setfillcolor(HOTPINK);
+
+				fillrect(650 - 5, 150 - 5, 650 + 5 + gw, 150 + 5 + gh);
+
+				outtextxy(650, 150, "删除");
+			}
+
+			if (!xis) {
+				setfillcolor(PINK);
+
+				fillrect(650 - 5, 150 - 5, 650 + 5 + gw, 150 + 5 + gh);
+
+				outtextxy(650, 150, "删除");
+			}
+
+			if (mx >= 650 - 5 && mx <= 650 + 5 + gw && my >= 150 - 5 && my <= 150 + 5 + gh && msg.is_left() && msg.is_up()) {
+				deleteNode(head, id);
+
+				res = true;
+
+				cleardevice();
+				setfont(60, 0, "华文行楷");
+				outtextxy(330, 45, "删除机房");
+				setfont(20, 0, "楷体");
+				setlinewidth(2);
+				setlinecolor(LIGHTGRAY);
+				line(100, 120, 800, 120);
+				setlinecolor(PINK);
+
+				outtextxy(650, 350, "删除成功！");
+				break;
+			}
+		}
+		if (res) {
+			break;
+		}
+	}
+
+	saveComroomsToFile(*head, "comroomList.txt");
+
+	return res;
+}
 
