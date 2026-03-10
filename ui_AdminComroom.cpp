@@ -389,7 +389,7 @@ void deleteComroom() {
 	line(100, 120, 800, 120);
 	setlinecolor(PINK);
 
-	strcpy(id, getComroomId());
+	strcpy(id, getComroomId(id));
 
 	cleardevice();
 
@@ -425,7 +425,7 @@ void deleteComroom() {
 	getch();
 }
 
-char* getComroomId() {
+char* getComroomId(char* tCRid) {
 	char id[9] = { 0 };
 
 	int dh = textheight("ª˙∑ø∫≈");
@@ -458,12 +458,13 @@ char* getComroomId() {
 				editId.gettext(sizeof(id), id);
 
 				if (strlen(id) > 0) {
-					editId.destroy();
 
 					int CRid = atoi(id);
 
 					sprintf(id, "CR%04d", CRid);
-					return id;
+
+					strcpy(tCRid, id);
+					return tCRid;
 				}
 				else {
 					outtextxy(350, 500, "«ÎÃÓ–¥£°");
@@ -473,6 +474,8 @@ char* getComroomId() {
 			}
 		}
 	}
+	editId.destroy();
+	return NULL;
 }
 
 bool initDeleteComroom(CRNode* current, CRNode** head, char* id) {
@@ -570,7 +573,7 @@ void modifyComroom() {
 	line(100, 120, 800, 120);
 	setlinecolor(PINK);
 
-	strcpy(id, getComroomId());
+	strcpy(id, getComroomId(id));
 
 	cleardevice();
 

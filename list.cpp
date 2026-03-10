@@ -422,13 +422,13 @@ CNode* loadComputersFromFile(const char* filename) {
     return head;
 }
 
-int getMaxId(CNode* head) {
+int getMaxId(CNode* head, char* CRid) {
     int maxId = 0;
     CNode* current = head;
 
     while (current != NULL) {
-        const char* cid = current->computer.CRid;
-        if (cid && strlen(cid) > 1 && cid[0] == 'C') {
+        const char* cid = current->computer.Cid;
+        if (cid && strlen(cid) > 1 && cid[0] == 'C' && strcmp(CRid, current->computer.CRid) == 0) {
             char numPart[7] = { 0 };
             strncpy(numPart, cid + 1, 5);
 
@@ -481,7 +481,7 @@ void showComputers(CNode* head) {
     while (current != NULL) {
         puts("***********\n");
         printf("%s\t %5s\t %5s\n", "CRID", "CID", "Open");
-        printf("%s\t %5d\t %5s\n\n", current->computer.CRid, current->computer.Cid, current->computer.isOpen ? "true" : "false");
+        printf("%s\t %5s\t %5s\n\n", current->computer.CRid, current->computer.Cid, current->computer.isOpen ? "true" : "false");
         puts("***********\n");
     }
 }

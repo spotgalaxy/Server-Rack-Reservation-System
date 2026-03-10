@@ -61,7 +61,7 @@ void freeList(CNode* head);
 
 CNode* loadComputersFromFile(const char* filename);
 
-int getMaxId(CNode* head);
+int getMaxId(CNode* head, char* CRid);
 
 void saveComputersToFile(CNode* head, const char* filename);
 

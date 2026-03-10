@@ -12,7 +12,7 @@ void initCheckComrooms(CRNode* current, int gap, int startx);
 void addComroom();
 bool initAddComroom(CRNode** head);
 void deleteComroom();
-char* getComroomId();
+char* getComroomId(char* CRid);
 bool initDeleteComroom(CRNode* current, CRNode** head, char* id);
 void modifyComroom();
 void initModifyComroom(CRNode* current, CRNode* head);
