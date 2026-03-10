@@ -179,7 +179,7 @@ void initAdminComroom() {
 			}
 
 			if (mx >= 350 - gap && mx <= 350 + gw + gap && my >= 400 - gap && my <= 400 + gh + gap && msg.is_left() && msg.is_up()) {
-				//改
+				modifyComroom();
 
 				cleardevice();
 				setfont(60, 0, "华文行楷");
@@ -543,5 +543,174 @@ bool initDeleteComroom(CRNode* current, CRNode** head, char* id) {
 	saveComroomsToFile(*head, "comroomList.txt");
 
 	return res;
+}
+
+void modifyComroom() {
+	bool isF = false;
+
+	CRNode* comroomList = loadComroomsFromFile("comroomList.txt");
+
+	if (comroomList == NULL) {
+		/*puts("No users found in the system or file error.");
+		system("pause");*/
+		return;
+	}
+
+	CRNode* current = comroomList;
+
+	char id[9] = { 0 };
+
+	cleardevice();
+
+	setfont(60, 0, "华文行楷");
+	outtextxy(330, 45, "修改机房");
+	setfont(20, 0, "楷体");
+	setlinewidth(2);
+	setlinecolor(LIGHTGRAY);
+	line(100, 120, 800, 120);
+	setlinecolor(PINK);
+
+	strcpy(id, getComroomId());
+
+	cleardevice();
+
+	setfont(60, 0, "华文行楷");
+	outtextxy(330, 45, "修改机房");
+	setfont(20, 0, "楷体");
+	setlinewidth(2);
+	setlinecolor(LIGHTGRAY);
+	line(100, 120, 800, 120);
+	setlinecolor(PINK);
+
+	while (current != NULL) {
+		if (strcmp(current->comroom.CRid, id) == 0) {
+			isF = true;
+			break;
+		}
+		current = current->next;
+	}
+
+	if (isF) {
+		initModifyComroom(current, comroomList);
+	}
+	else {
+		outtextxy(650, 350, "未找到该学生!");
+	}
+
+	freeList(comroomList);
+
+	getch();
+}
+
+void initModifyComroom(CRNode* current, CRNode* head) {
+	xyprintf(250, 130, "%4s\t %12s\t %12s\n", "机房号", "最大容纳量", "是否开放");
+	xyprintf(250, 150, "%s\t %8d\t %14s\n", current->comroom.CRid, current->comroom.maxCom, current->comroom.isOpen ? "开放" : "不开放");
+
+	int gw = textwidth("修改");
+	int gh = textheight("修改");
+
+	fillrect(650 - 5, 150 - 5, 650 + 5 + gw, 150 + 5 + gh);
+
+	outtextxy(650, 150, "修改");
+
+	while (1) {
+		while (mousemsg()) {
+			mouse_msg msg = getmouse();
+
+			int mx = msg.x;
+			int my = msg.y;
+
+			bool xis = false;
+
+			if (mx >= 650 - 5 && mx <= 650 + 5 + gw && my >= 150 - 5 && my <= 150 + 5 + gh) {
+				xis = true;
+			}
+
+			if (xis) {
+				setfillcolor(HOTPINK);
+
+				fillrect(650 - 5, 150 - 5, 650 + 5 + gw, 150 + 5 + gh);
+
+				outtextxy(650, 150, "修改");
+			}
+
+			if (!xis) {
+				setfillcolor(PINK);
+
+				fillrect(650 - 5, 150 - 5, 650 + 5 + gw, 150 + 5 + gh);
+
+				outtextxy(650, 150, "修改");
+			}
+
+			if (mx >= 650 - 5 && mx <= 650 + 5 + gw && my >= 150 - 5 && my <= 150 + 5 + gh && msg.is_left() && msg.is_up()) {
+				cleardevice();
+				setfont(60, 0, "华文行楷");
+				outtextxy(330, 45, "修改用户");
+				setfont(20, 0, "楷体");
+				setlinewidth(2);
+				setlinecolor(LIGHTGRAY);
+				line(100, 120, 800, 120);
+				setlinecolor(PINK);
+
+				int dh = textheight("最大容纳量");
+
+
+				sys_edit editMaxsite;
+				editMaxsite.create(false);
+				editMaxsite.move(325, 200);
+				editMaxsite.size(250, dh + 8);
+				editMaxsite.setmaxlen(8);
+				editMaxsite.setbgcolor(PINK);
+				editMaxsite.setcolor(BLACK);
+				editMaxsite.setfont(20, 0, "宋体");
+				editMaxsite.visible(true);
+				char maxSite[10] = { 0 };
+				editMaxsite.setfocus();
+				sprintf(maxSite, "%d", current->comroom.maxCom);
+				editMaxsite.settext(maxSite);
+
+				outtextxy(330, 180, "最大容纳量");
+
+				bool running = true;
+
+				char MaxSite[10] = { 0 };
+
+				while (running) {
+					if (kbhit()) {
+						key_msg msg = getkey();
+
+						switch (msg.key) {
+						case key_esc:
+							running = false;
+							break;
+						case key_enter:
+							editMaxsite.gettext(sizeof(MaxSite), MaxSite);
+
+							if (strlen(MaxSite) > 0) {
+								int Maxsite = atoi(MaxSite);
+								current->comroom.maxCom = Maxsite;
+
+								outtextxy(650, 350, "修改成功！");
+								getch();
+
+								running = false;
+							}
+							else {
+								outtextxy(650, 350, "请填写完整！");
+								getch();
+							}
+							break;
+						}
+					}
+				}
+				editMaxsite.destroy();
+
+				saveComroomsToFile(head, "comroomList.txt");
+
+				return;
+
+			}
+		}
+	}
 }
 

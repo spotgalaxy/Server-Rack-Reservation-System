@@ -1,6 +1,7 @@
 #pragma once
-#include <ege.h>
-#include <graphics.h>
-#include "header.h"
+#include "ui_AdminComroom.h"
+#include "computer.h"
 
 void initAdminComputer();
+void checkComputers();
+void initCheckComputers(CNode* head);

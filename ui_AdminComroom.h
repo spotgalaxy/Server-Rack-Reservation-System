@@ -14,3 +14,5 @@ bool initAddComroom(CRNode** head);
 void deleteComroom();
 char* getComroomId();
 bool initDeleteComroom(CRNode* current, CRNode** head, char* id);
+void modifyComroom();
+void initModifyComroom(CRNode* current, CRNode* head);

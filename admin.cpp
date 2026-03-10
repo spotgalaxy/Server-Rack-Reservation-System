@@ -16,10 +16,10 @@ void adminMnue() {
 			checkAllUsers();
 			break;
 		case 2:
-			checkRoomInfo();
+			//checkRoomInfo();
 			break;
 		case 3:
-			checkComputers();
+			//checkComputers();
 			break;
 		case 0:
 			break;
@@ -47,10 +47,10 @@ void checkAllUsers() {
 	freeList(userList);
 }
 
-void checkRoomInfo() {
-
-}
-
-void checkComputers() {
-
-}
+//void checkRoomInfo() {
+//
+//}
+//
+//void checkComputers() {
+//
+//}

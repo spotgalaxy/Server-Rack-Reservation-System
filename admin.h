@@ -7,5 +7,5 @@ extern const char* adminPwd;
 
 void adminMnue();
 void checkAllUsers();
-void checkRoomInfo();
-void checkComputers();
+//void checkRoomInfo();
+//void checkComputers();

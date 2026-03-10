@@ -153,19 +153,55 @@ void initAdminComputer() {
 			}
 
 			if (mx >= 350 - gap && mx <= 350 + gw + gap && my >= 200 - gap && my <= 200 + gh + gap && msg.is_left() && msg.is_up()) {
-				//查
+				checkComputers();
+
+				cleardevice();
+				setfont(60, 0, "华文行楷");
+				outtextxy(350, 45, "计算机");
+				setfont(40, 0, "楷体");
+				setlinewidth(2);
+				setlinecolor(LIGHTGRAY);
+				line(100, 120, 800, 120);
+				setlinecolor(PINK);
 			}
 
 			if (mx >= 350 - gap && mx <= 350 + gw + gap && my >= 300 - gap && my <= 300 + gh + gap && msg.is_left() && msg.is_up()) {
 				//增
+
+				cleardevice();
+				setfont(60, 0, "华文行楷");
+				outtextxy(350, 45, "计算机");
+				setfont(40, 0, "楷体");
+				setlinewidth(2);
+				setlinecolor(LIGHTGRAY);
+				line(100, 120, 800, 120);
+				setlinecolor(PINK);
 			}
 
 			if (mx >= 350 - gap && mx <= 350 + gw + gap && my >= 400 - gap && my <= 400 + gh + gap && msg.is_left() && msg.is_up()) {
 				//改
+
+				cleardevice();
+				setfont(60, 0, "华文行楷");
+				outtextxy(350, 45, "计算机");
+				setfont(40, 0, "楷体");
+				setlinewidth(2);
+				setlinecolor(LIGHTGRAY);
+				line(100, 120, 800, 120);
+				setlinecolor(PINK);
 			}
 
 			if (mx >= 350 - gap && mx <= 350 + gw + gap && my >= 500 - gap && my <= 500 + gh + gap && msg.is_left() && msg.is_up()) {
 				//删
+
+				cleardevice();
+				setfont(60, 0, "华文行楷");
+				outtextxy(350, 45, "计算机");
+				setfont(40, 0, "楷体");
+				setlinewidth(2);
+				setlinecolor(LIGHTGRAY);
+				line(100, 120, 800, 120);
+				setlinecolor(PINK);
 			}
 
 			if (mx >= 625 - gap && mx <= 625 + gw + gap && my >= 350 - gap && my <= 350 + gh + gap && msg.is_left() && msg.is_up()) {
@@ -173,6 +209,63 @@ void initAdminComputer() {
 			}
 		}
 	}
+
+	getch();
+}
+
+void checkComputers() {
+	CNode* computerList = loadComputersFromFile("computerList.txt");
+
+	if (computerList == NULL) {
+		/*puts("No users found in the system or file error.");
+		system("pause");*/
+		return;
+	}
+
+	CNode* current = computerList;
+
+	bool isF = false;
+
+	cleardevice();
+
+	setfont(60, 0, "华文行楷");
+	outtextxy(310, 45, "查看计算机");
+	setfont(20, 0, "楷体");
+	setlinewidth(2);
+	setlinecolor(LIGHTGRAY);
+	line(100, 120, 800, 120);
+	setlinecolor(PINK);
+
+	while (current != NULL) {
+		if (strcmp(getComroomId(), current->computer.CRid) == 0) {
+			isF = true;
+			break;
+		}
+		current = current->next;
+	}
+
+	if (isF) {
+		initCheckComputers(computerList);
+	}
+	else {
+		outtextxy(650, 350, "未找到该机房!");
+	}
+
+	freeList(computerList);
+
+	getch();
+}
+
+void initCheckComputers(CNode* head) {
+	cleardevice();
+
+	setfont(60, 0, "华文行楷");
+	outtextxy(310, 45, "查看计算机");
+	setfont(20, 0, "楷体");
+	setlinewidth(2);
+	setlinecolor(LIGHTGRAY);
+	line(100, 120, 800, 120);
+	setlinecolor(PINK);
 
 	getch();
 }
