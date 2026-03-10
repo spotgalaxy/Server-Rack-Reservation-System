@@ -243,7 +243,15 @@ void modifyUser() {
 
 	cleardevice();
 
-	strcpy(id, initModifyUser());
+	setfont(60, 0, "华文行楷");
+	outtextxy(330, 45, "修改用户");
+	setfont(20, 0, "楷体");
+	setlinewidth(2);
+	setlinecolor(LIGHTGRAY);
+	line(100, 120, 800, 120);
+	setlinecolor(PINK);
+
+	strcpy(id, getUserId());
 
 	cleardevice();
 
@@ -264,171 +272,7 @@ void modifyUser() {
 	}
 
 	if (isF) {
-		xyprintf(150, 130, "%6s\t %8s\t %10s\t %10s\n", "学号", "名字", "联系方式", "合法性");
-		xyprintf(150, 150, "%s\t %6s\t %9s\t %10s\n", current->user.Uid, current->user.name, current->user.tel, current->user.isLegal ? "合法" : "不合法");
-
-		int gw = textwidth("修改");
-		int gh = textheight("修改");
-
-		fillrect(650 - 5, 150 - 5, 650 + 5 + gw, 150 + 5 + gh);
-
-		outtextxy(650, 150, "修改");
-
-		while (1) {
-			while(mousemsg()) {
-				mouse_msg msg = getmouse();
-
-				int mx = msg.x;
-				int my = msg.y;
-
-				bool xis = false;
-
-				if (mx >= 650 - 5 && mx <= 650 + 5 + gw && my >= 150 - 5 && my <= 150 + 5 + gh) {
-					xis = true;
-				}
-
-				if (xis) {
-					setfillcolor(HOTPINK);
-
-					fillrect(650 - 5, 150 - 5, 650 + 5 + gw, 150 + 5 + gh);
-
-					outtextxy(650, 150, "修改");
-				}
-
-				if (!xis) {
-					setfillcolor(PINK);
-
-					fillrect(650 - 5, 150 - 5, 650 + 5 + gw, 150 + 5 + gh);
-
-					outtextxy(650, 150, "修改");
-				}
-
-				if (mx >= 650 - 5 && mx <= 650 + 5 + gw && my >= 150 - 5 && my <= 150 + 5 + gh && msg.is_left() && msg.is_up()) {
-					cleardevice();
-					setfont(60, 0, "华文行楷");
-					outtextxy(330, 45, "修改用户");
-					setfont(20, 0, "楷体");
-					setlinewidth(2);
-					setlinecolor(LIGHTGRAY);
-					line(100, 120, 800, 120);
-					setlinecolor(PINK);
-
-					int dh = textheight("用户名");
-
-					sys_edit editName;
-					editName.create(false);
-					editName.move(325, 200);
-					editName.size(250, dh + 8);
-					editName.setmaxlen(14);
-					editName.setbgcolor(PINK);
-					editName.setcolor(BLACK);
-					editName.setfont(20, 0, "宋体");
-					editName.visible(true);
-					editName.setfocus();
-					editName.settext(current->user.name);
-
-
-
-
-					sys_edit editId;
-					editId.create(false);
-					editId.move(325, 300);
-					editId.size(250, dh + 8);
-					editId.setmaxlen(8);
-					editId.setbgcolor(PINK);
-					editId.setcolor(BLACK);
-					editId.setfont(20, 0, "宋体");
-					editId.visible(true);
-					editId.settext(current->user.Uid);
-
-
-
-
-					sys_edit editPwd;
-					editPwd.create(false);
-					editPwd.move(325, 400);
-					editPwd.size(250, dh + 8);
-					editPwd.setmaxlen(20);
-					editPwd.setbgcolor(PINK);
-					editPwd.setcolor(BLACK);
-					editPwd.setfont(20, 0, "宋体");
-					editPwd.visible(true);
-					editPwd.settext(current->user.password);
-
-
-
-
-					sys_edit editTel;
-					editTel.create(false);
-					editTel.move(325, 500);
-					editTel.size(250, dh + 8);
-					editTel.setmaxlen(20);
-					editTel.setbgcolor(PINK);
-					editTel.setcolor(BLACK);
-					editTel.setfont(20, 0, "宋体");
-					editTel.visible(true);
-					editTel.settext(current->user.tel);
-
-
-
-
-					outtextxy(330, 180, "用户名");
-					outtextxy(330, 280, "学号");
-					outtextxy(330, 380, "密码");
-					outtextxy(330, 480, "联系方式");
-
-					bool running = true;
-
-					char name[15] = { 0 };
-					char id[9] = { 0 };
-					char pwd[21] = { 0 };
-					char tel[12] = { 0 };
-
-					
-
-					while (running) {
-						
-						if (kbhit()) {
-							key_msg msg = getkey();
-
-							switch (msg.key) {
-							case key_esc:
-								running = false;
-								break;
-							case key_enter:
-								editName.gettext(sizeof(name), name);
-								editId.gettext(sizeof(id), id);
-								editPwd.gettext(sizeof(pwd), pwd);
-								editTel.gettext(sizeof(tel), tel);
-
-								if (strlen(name) > 0 && strlen(id) > 0 && strlen(pwd) > 0 && strlen(tel) > 0) {
-									strcpy(current->user.name, name);
-									strcpy(current->user.Uid, id);
-									strcpy(current->user.password, pwd);
-									strcpy(current->user.tel, tel);
-
-									outtextxy(650, 350, "修改成功！");
-									getch();
-									editName.destroy();
-									editId.destroy();
-									editPwd.destroy();
-									editTel.destroy();
-									running = false;
-								}
-								else {
-									outtextxy(650, 350, "请填写完整！");
-									getch();
-								}
-								break;
-							}
-						}
-					}
-					saveUsersToFile(userList, "userList.txt");
-					freeList(userList);
-					return;
-				}
-			}
-		}
+		initModifyUser(current, userList);
 	}
 	else {
 		outtextxy(650, 350, "未找到该学生!");
@@ -437,16 +281,8 @@ void modifyUser() {
 	getch();
 }
 
-char* initModifyUser() {
+char* getUserId() {
 	char id[9] = { 0 };
-
-	setfont(60, 0, "华文行楷");
-	outtextxy(330, 45, "修改用户");
-	setfont(20, 0, "楷体");
-	setlinewidth(2);
-	setlinecolor(LIGHTGRAY);
-	line(100, 120, 800, 120);
-	setlinecolor(PINK);
 
 	int dh = textheight("学号");
 
@@ -505,6 +341,174 @@ char* initModifyUser() {
 	getch();
 }
 
+void initModifyUser(UNode* current, UNode* head) {
+	xyprintf(150, 130, "%6s\t %8s\t %10s\t %10s\n", "学号", "名字", "联系方式", "合法性");
+	xyprintf(150, 150, "%s\t %6s\t %9s\t %10s\n", current->user.Uid, current->user.name, current->user.tel, current->user.isLegal ? "合法" : "不合法");
+
+	int gw = textwidth("修改");
+	int gh = textheight("修改");
+
+	fillrect(650 - 5, 150 - 5, 650 + 5 + gw, 150 + 5 + gh);
+
+	outtextxy(650, 150, "修改");
+
+	while (1) {
+		while (mousemsg()) {
+			mouse_msg msg = getmouse();
+
+			int mx = msg.x;
+			int my = msg.y;
+
+			bool xis = false;
+
+			if (mx >= 650 - 5 && mx <= 650 + 5 + gw && my >= 150 - 5 && my <= 150 + 5 + gh) {
+				xis = true;
+			}
+
+			if (xis) {
+				setfillcolor(HOTPINK);
+
+				fillrect(650 - 5, 150 - 5, 650 + 5 + gw, 150 + 5 + gh);
+
+				outtextxy(650, 150, "修改");
+			}
+
+			if (!xis) {
+				setfillcolor(PINK);
+
+				fillrect(650 - 5, 150 - 5, 650 + 5 + gw, 150 + 5 + gh);
+
+				outtextxy(650, 150, "修改");
+			}
+
+			if (mx >= 650 - 5 && mx <= 650 + 5 + gw && my >= 150 - 5 && my <= 150 + 5 + gh && msg.is_left() && msg.is_up()) {
+				cleardevice();
+				setfont(60, 0, "华文行楷");
+				outtextxy(330, 45, "修改用户");
+				setfont(20, 0, "楷体");
+				setlinewidth(2);
+				setlinecolor(LIGHTGRAY);
+				line(100, 120, 800, 120);
+				setlinecolor(PINK);
+
+				int dh = textheight("用户名");
+
+				sys_edit editName;
+				editName.create(false);
+				editName.move(325, 200);
+				editName.size(250, dh + 8);
+				editName.setmaxlen(14);
+				editName.setbgcolor(PINK);
+				editName.setcolor(BLACK);
+				editName.setfont(20, 0, "宋体");
+				editName.visible(true);
+				editName.setfocus();
+				editName.settext(current->user.name);
+
+
+
+
+				sys_edit editId;
+				editId.create(false);
+				editId.move(325, 300);
+				editId.size(250, dh + 8);
+				editId.setmaxlen(8);
+				editId.setbgcolor(PINK);
+				editId.setcolor(BLACK);
+				editId.setfont(20, 0, "宋体");
+				editId.visible(true);
+				editId.settext(current->user.Uid);
+
+
+
+
+				sys_edit editPwd;
+				editPwd.create(false);
+				editPwd.move(325, 400);
+				editPwd.size(250, dh + 8);
+				editPwd.setmaxlen(20);
+				editPwd.setbgcolor(PINK);
+				editPwd.setcolor(BLACK);
+				editPwd.setfont(20, 0, "宋体");
+				editPwd.visible(true);
+				editPwd.settext(current->user.password);
+
+
+
+
+				sys_edit editTel;
+				editTel.create(false);
+				editTel.move(325, 500);
+				editTel.size(250, dh + 8);
+				editTel.setmaxlen(20);
+				editTel.setbgcolor(PINK);
+				editTel.setcolor(BLACK);
+				editTel.setfont(20, 0, "宋体");
+				editTel.visible(true);
+				editTel.settext(current->user.tel);
+
+
+
+
+				outtextxy(330, 180, "用户名");
+				outtextxy(330, 280, "学号");
+				outtextxy(330, 380, "密码");
+				outtextxy(330, 480, "联系方式");
+
+				bool running = true;
+
+				char name[15] = { 0 };
+				char id[9] = { 0 };
+				char pwd[21] = { 0 };
+				char tel[12] = { 0 };
+
+
+
+				while (running) {
+
+					if (kbhit()) {
+						key_msg msg = getkey();
+
+						switch (msg.key) {
+						case key_esc:
+							running = false;
+							break;
+						case key_enter:
+							editName.gettext(sizeof(name), name);
+							editId.gettext(sizeof(id), id);
+							editPwd.gettext(sizeof(pwd), pwd);
+							editTel.gettext(sizeof(tel), tel);
+
+							if (strlen(name) > 0 && strlen(id) > 0 && strlen(pwd) > 0 && strlen(tel) > 0) {
+								strcpy(current->user.name, name);
+								strcpy(current->user.Uid, id);
+								strcpy(current->user.password, pwd);
+								strcpy(current->user.tel, tel);
+
+								outtextxy(650, 350, "修改成功！");
+								getch();
+								editName.destroy();
+								editId.destroy();
+								editPwd.destroy();
+								editTel.destroy();
+								running = false;
+							}
+							else {
+								outtextxy(650, 350, "请填写完整！");
+								getch();
+							}
+							break;
+						}
+					}
+				}
+				saveUsersToFile(head, "userList.txt");
+				freeList(head);
+				return;
+			}
+		}
+	}
+}
+
 void deleteUser() {
 	UNode* userList = loadUsersFromFile("userList.txt");
 
@@ -515,4 +519,115 @@ void deleteUser() {
 	}
 
 	UNode* current = userList;
+
+	char id[9] = { 0 };
+
+	cleardevice();
+
+	setfont(60, 0, "华文行楷");
+	outtextxy(330, 45, "删除用户");
+	setfont(20, 0, "楷体");
+	setlinewidth(2);
+	setlinecolor(LIGHTGRAY);
+	line(100, 120, 800, 120);
+	setlinecolor(PINK);
+
+	strcpy(id, getUserId());
+
+	while (current != NULL) {
+		if (strcmp(current->user.Uid, id) == 0) {
+			break;
+		}
+		current = current->next;
+	}
+
+	cleardevice();
+
+	setfont(60, 0, "华文行楷");
+	outtextxy(330, 45, "删除用户");
+	setfont(20, 0, "楷体");
+	setlinewidth(2);
+	setlinecolor(LIGHTGRAY);
+	line(100, 120, 800, 120);
+	setlinecolor(PINK);
+
+	if (initDeleteUser(current, &userList, id)) {
+		outtextxy(650, 350, "删除成功！");
+	}
+	else {
+		outtextxy(650, 350, "删除失败！");
+	}
+
+	getch();
+}
+
+bool initDeleteUser(UNode* current, UNode** head, char* id) {
+	xyprintf(150, 130, "%6s\t %8s\t %10s\t %10s\n", "学号", "名字", "联系方式", "合法性");
+	xyprintf(150, 150, "%s\t %6s\t %9s\t %10s\n", current->user.Uid, current->user.name, current->user.tel, current->user.isLegal ? "合法" : "不合法");
+
+	int gw = textwidth("删除");
+	int gh = textheight("删除");
+
+	fillrect(650 - 5, 150 - 5, 650 + 5 + gw, 150 + 5 + gh);
+
+	outtextxy(650, 150, "删除");
+
+	bool run = false;
+	
+	while (1) {
+		while (mousemsg()) {
+			mouse_msg msg = getmouse();
+
+			int mx = msg.x;
+			int my = msg.y;
+
+			bool xis = false;
+
+			if (mx >= 650 - 5 && mx <= 650 + 5 + gw && my >= 150 - 5 && my <= 150 + 5 + gh) {
+				xis = true;
+			}
+
+			if (xis) {
+				setfillcolor(HOTPINK);
+
+				fillrect(650 - 5, 150 - 5, 650 + 5 + gw, 150 + 5 + gh);
+
+				outtextxy(650, 150, "删除");
+			}
+
+			if (!xis) {
+				setfillcolor(PINK);
+
+				fillrect(650 - 5, 150 - 5, 650 + 5 + gw, 150 + 5 + gh);
+
+				outtextxy(650, 150, "删除");
+			}
+
+			if (mx >= 650 - 5 && mx <= 650 + 5 + gw && my >= 150 - 5 && my <= 150 + 5 + gh && msg.is_left() && msg.is_up()) {
+				deleteNode(head, id);
+
+				run = true;
+
+				cleardevice();
+				setfont(60, 0, "华文行楷");
+				outtextxy(330, 45, "删除用户");
+				setfont(20, 0, "楷体");
+				setlinewidth(2);
+				setlinecolor(LIGHTGRAY);
+				line(100, 120, 800, 120);
+				setlinecolor(PINK);
+
+				outtextxy(650, 350, "删除成功！");
+				break;
+			}
+		}
+		if (run) {
+			break;
+		}
+	}
+	
+	saveUsersToFile(*head, "userList.txt");
+	freeList(*head);
+	return run;
+
 }

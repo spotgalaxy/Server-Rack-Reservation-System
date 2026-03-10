@@ -20,6 +20,7 @@ void Register(char* name, char* id, char* pwd, char* tel) {
     strcpy(newUser.Uid, id);
     strcpy(newUser.password, pwd);
     strcpy(newUser.tel, tel);
+    newUser.isLegal = true;
 
     // 1. 从文件加载现有用户到链表
     UNode* userList = loadUsersFromFile("userList.txt");

@@ -27,6 +27,8 @@ UNode* findUser(UNode* head, const char* name, const char* pwd);
 //  Õ∑≈¡¥±Ìƒ⁄¥Ê
 void freeList(UNode* head);
 
+void deleteNode(UNode** head, const char* Uid);
+
 void showUsers(UNode* head);
 
 
@@ -47,6 +49,8 @@ CRNode* findComrooms(CRNode* head, const char* CRid);
 
 void showComrooms(CRNode* head);
 
+void deleteNode(CRNode** head, const char* CRid);
+
 
 
 CNode* createNode(Computers computer);
@@ -64,3 +68,5 @@ void saveComputersToFile(CNode* head, const char* filename);
 CNode* findComputers(CNode* head, const char* CRid, const char* Cid);
 
 void showComputers(CNode* head);
+
+void deleteNode(CNode** head, const char* CRid, const char* Cid);

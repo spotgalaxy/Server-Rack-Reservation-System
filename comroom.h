@@ -2,7 +2,7 @@
 #include "header.h"
 
 typedef struct Comrooms {
-	char CRid[7];
+	char CRid[8];
 	int maxCom;
 	bool isOpen;
 }Comrooms;

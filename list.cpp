@@ -57,12 +57,19 @@ UNode* loadUsersFromFile(const char* filename) {
         if (strlen(buffer) == 0) continue;
 
         Users tempUser = { 0 };
+        char isL[8] = { 0 };
        
-        int count = sscanf(buffer, "%8[^ ] %14[^ ] %20[^ ] %11[^ ]",
-            tempUser.Uid, tempUser.name, tempUser.password, tempUser.tel);
+        int count = sscanf(buffer, "%8[^ ] %14[^ ] %20[^ ] %11[^ ] %6[^\n]",
+            tempUser.Uid, tempUser.name, tempUser.password, tempUser.tel, isL);
+
+        if (strcmp(isL, "合法") == 0) {
+            tempUser.isLegal = true;
+        }
+        else {
+            tempUser.isLegal = false;
+        }
 
         if (count >= 4) {
-            tempUser.isLegal = true;
             addNode(&head, tempUser);
         }
     }
@@ -82,11 +89,13 @@ void saveUsersToFile(UNode* head, const char* filename) {
     UNode* current = head;
     while (current != NULL) {
         // 访问节点内的 user 成员
-        fprintf(fp, "%s %s %s %s\n",
+        fprintf(fp, "%s %s %s %s %s\n",
             current->user.Uid,
             current->user.name,
             current->user.password,
-            current->user.tel);
+            current->user.tel,
+            current->user.isLegal ? "合法" : "不合法"
+            );
 
         current = current->next;
     }
@@ -115,6 +124,32 @@ void freeList(UNode* head) {
         head = head->next;
 
         free(temp);
+    }
+}
+
+void deleteNode(UNode** head, const char* Uid) {
+    if (head == NULL) {
+        return;
+    }
+
+    if (strcmp((*head)->user.Uid, Uid) == 0) {
+        UNode* temp = (*head);
+        (*head) = (*head)->next;
+        free(temp);
+        return;
+    }
+
+    UNode* prev = (*head);
+    UNode* current = (*head)->next;
+
+    while (current != NULL) {
+        if (strcmp(current->user.Uid, Uid) == 0) {
+            prev->next = current->next;
+            free(current);
+            return;
+        }
+        prev = current;
+        current = current->next;
     }
 }
 
@@ -193,10 +228,18 @@ CRNode* loadComroomsFromFile(const char* filename) {
 
         Comrooms tempComrooms = { 0 };
 
-        sscanf(buffer, "%8[^ ] %d",
-            tempComrooms.CRid, tempComrooms.maxCom);
+        char isO[8] = { 0 };
 
-        tempComrooms.isOpen = true;
+        sscanf(buffer, "%9[^ ] %d %6[^\n]",
+            tempComrooms.CRid, &tempComrooms.maxCom, isO);
+
+        if (strcmp(isO, "开放") == 0) {
+            tempComrooms.isOpen = true;
+        }
+        else {
+            tempComrooms.isOpen = false;
+        }
+
         addNode(&head, tempComrooms);
         
     }
@@ -214,7 +257,7 @@ int getMaxId(CRNode* head) {
     while (current != NULL) {
         const char* crid = current->comroom.CRid;
         if (crid && strlen(crid) > 1 && crid[0] == 'C' && crid[1] == 'R') {
-            char numPart[7] = { 0 };
+            char numPart[8] = { 0 };
             strncpy(numPart, crid + 1, 5);
 
             char* endPtr;
@@ -238,9 +281,10 @@ void saveComroomsToFile(CRNode* head, const char* filename) {
     CRNode* current = head;
     while (current != NULL) {
         // 访问节点内的 comroom 成员
-        fprintf(fp, "%s %d\n",
+        fprintf(fp, "%s %d %s\n",
             current->comroom.CRid,
-            current->comroom.maxCom
+            current->comroom.maxCom,
+            current->comroom.isOpen ? "开放" : "不开放"
             );
 
         current = current->next;
@@ -269,7 +313,31 @@ void showComrooms(CRNode* head) {
     }
 }
 
+void deleteNode(CRNode** head, const char* CRid) {
+    if (head == NULL) {
+        return;
+    }
 
+    if (strcmp((*head)->comroom.CRid, CRid) == 0) {
+        CRNode* temp = (*head);
+        (*head) = (*head)->next;
+        free(temp);
+        return;
+    }
+
+    CRNode* prev = (*head);
+    CRNode* current = (*head)->next;
+
+    while (current != NULL) {
+        if (strcmp((*head)->comroom.CRid, CRid) == 0) {
+            prev->next = current->next;
+            free(current);
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+}
 
 //计算机管理链表
 
@@ -332,10 +400,18 @@ CNode* loadComputersFromFile(const char* filename) {
 
         Computers tempComputers = { 0 };
 
-        sscanf(buffer, "%8[^ ] %8[^ ]",
-            tempComputers.CRid, tempComputers.Cid);
+        char isO[8] = { 0 };
 
-        tempComputers.isOpen = true;
+        sscanf(buffer, "%8[^ ] %8[^ ] %6[^\n]",
+            tempComputers.CRid, tempComputers.Cid, isO);
+
+        if (strcmp(isO, "开放") == 0) {
+            tempComputers.isOpen = true;
+        }
+        else {
+            tempComputers.isOpen = false;
+        }
+
         addNode(&head, tempComputers);
 
     }
@@ -378,9 +454,10 @@ void saveComputersToFile(CNode* head, const char* filename) {
     CNode* current = head;
     while (current != NULL) {
         // 访问节点内的 computer 成员
-        fprintf(fp, "%s %s\n",
+        fprintf(fp, "%s %s %s\n",
             current->computer.CRid,
-            current->computer.Cid
+            current->computer.Cid,
+            current->computer.isOpen ? "开放" : "不开放"
         );
 
         current = current->next;
@@ -409,3 +486,28 @@ void showComputers(CNode* head) {
     }
 }
 
+void deleteNode(CNode** head, const char* CRid, const char* Cid) {
+    if (head == NULL) {
+        return;
+    }
+
+    if (strcmp((*head)->computer.CRid, CRid) == 0 && strcmp((*head)->computer.Cid, Cid) == 0) {
+        CNode* temp = (*head);
+        (*head) = (*head)->next;
+        free(temp);
+        return;
+    }
+
+    CNode* prev = (*head);
+    CNode* current = (*head)->next;
+
+    while (current != NULL) {
+        if (strcmp((*head)->computer.CRid, CRid) == 0 && strcmp((*head)->computer.Cid, Cid) == 0) {
+            prev->next = current->next;
+            free(current);
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+}

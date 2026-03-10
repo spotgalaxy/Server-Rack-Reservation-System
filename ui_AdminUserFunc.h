@@ -10,5 +10,7 @@ void initAdminUserFunc();
 void checkUsers();
 void initCheckUsers(UNode* current, int gap, int startx);
 void modifyUser();
-char* initModifyUser();
+void initModifyUser(UNode* current, UNode* head);
+char* getUserId();
 void deleteUser();
+bool initDeleteUser(UNode* current, UNode** head, char* id);
