@@ -12,7 +12,7 @@ void userMnue() {
 
 		switch (choice) {
 		case 1:
-			Booking();
+			//Booking();
 			break;
 		case 2:
 			//check
@@ -27,6 +27,6 @@ void userMnue() {
 	
 }
 
-void Booking() {
-	
-}
+//void Booking() {
+//	
+//}
