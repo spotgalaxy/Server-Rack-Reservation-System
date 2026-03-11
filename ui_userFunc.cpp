@@ -1,6 +1,6 @@
 #include "ui_userFunc.h"
 
-void initUserFunc() {
+void initUserFunc(char* Uid) {
 	cleardevice();
 
 	setfont(60, 0, "华文行楷");
@@ -152,7 +152,7 @@ void initUserFunc() {
 			}
 
 			if (mx >= 400 - gap && mx <= 400 + gw + gap && my >= 200 - gap && my <= 200 + gh + gap && msg.is_left() && msg.is_up()) {
-				booking();
+				booking(Uid);
 
 				cleardevice();
 				setfont(60, 0, "华文行楷");
@@ -165,7 +165,7 @@ void initUserFunc() {
 			}
 
 			if (mx >= 200 - gap && mx <= 200 + gw + gap && my >= 300 - gap && my <= 300 + gh + gap && msg.is_left() && msg.is_up()) {
-				//记录
+                checkRecord(Uid);
 
 				cleardevice();
 				setfont(60, 0, "华文行楷");
@@ -178,7 +178,7 @@ void initUserFunc() {
 			}
 
 			if (mx >= 600 - gap && mx <= 600 + gw + gap && my >= 300 - gap && my <= 300 + gh + gap && msg.is_left() && msg.is_up()) {
-				//修改
+                modifyUserInfo(Uid);
 
 				cleardevice();
 				setfont(60, 0, "华文行楷");
@@ -214,7 +214,7 @@ void initUserFunc() {
 	getch();
 }
 
-void booking() {
+void booking(char* Uid) {
     // 1. 加载数据
     CNode* computerList = loadComputersFromFile("computerList.txt");
     CRNode* comroomList = loadComroomsFromFile("comroomList.txt");
@@ -360,7 +360,7 @@ void booking() {
                             // enterBookingDetail(targetRoom, computerList); 
 
                             // 演示反馈：
-                            enterRoomDetail(targetRoom, computerList);
+                            enterRoomDetail(targetRoom, computerList, Uid);
 
                             /*cleardevice();
                             setfont(40, 0, "楷体");
@@ -431,7 +431,7 @@ void booking() {
     getch();
 }
 
-void enterRoomDetail(CRNode* targetRoom, CNode* allComputers) {
+void enterRoomDetail(CRNode* targetRoom, CNode* allComputers, char* Uid) {
     if (targetRoom == NULL) return;
 
     cleardevice();
@@ -583,11 +583,37 @@ void enterRoomDetail(CRNode* targetRoom, CNode* allComputers) {
 
                         // 模拟操作：修改状态并保存
                         selectedComp->computer.isOpen = false; // 标记为占用
+                        time_t now = 0;
+                        struct tm* local = { 0 };
+                        char buffer[80] = { 0 };
+
+                        now = time(NULL);
+
+                        local = localtime(&now);
+                        
+                        strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", local);
+
+                        Records record = { 0 };
+
+                        strcpy(record.Cid, selectedComp->computer.Cid);
+                        strcpy(record.CRid, selectedComp->computer.CRid);
+                        strcpy(record.Uid, Uid);
+                        strcpy(record.time, buffer);
+                        record.status = 0;
+
+                        RNode* recordList = loadRecordsFromFile("recordList.txt");
+
+                        addNode(&recordList, record);
+
+                        saveRecordsToFile(recordList, "recordList.txt");
+
+                        freeList(recordList);
+
                         saveComputersToFile(allComputers, "computerList.txt"); // 实际项目中取消注释
 
                         cleardevice();
                         setfont(40, 0, "楷体");
-                        settextcolor(GREEN);
+                        settextcolor(BLACK);
                         char msgBuf[100];
                         sprintf(msgBuf, "已成功锁定计算机：%s", selectedComp->computer.Cid);
                         outtextxy(200, 240, msgBuf);
@@ -668,7 +694,339 @@ void enterRoomDetail(CRNode* targetRoom, CNode* allComputers) {
     setlinecolor(LIGHTGRAY);
     line(100, 120, 800, 120);
     setlinecolor(PINK);
-    initUserFunc();
+    initUserFunc(Uid);
 }
 
+void modifyUserInfo(char* Uid) {
+    // 1. 获取当前登录用户的学号 (假设有一个全局变量或函数获取)
+    // 如果你的系统里 currentUser 是全局指针，直接用 currentUser->user.Uid
+    // 这里沿用你的逻辑，假设需要重新输入或从全局获取
+    char currentId[10] = { 0 };
 
+    // 【重要】请根据实际情况修改这里：
+    // 方案A: 如果已经登录，直接从全局变量拿 (推荐)
+    // extern UNode* currentUserGlobal; 
+    // if(currentUserGlobal) strcpy(currentId, currentUserGlobal->user.Uid);
+
+    // 方案B: 如果没有全局变量，可能需要再次输入 (如你原代码)
+    // 为了演示流畅，我这里假设你有一个全局变量 g_currentUserId
+    // 请在你的主程序定义这个全局数组
+    
+    strcpy(currentId, Uid);
+
+    // 2. 加载用户链表
+    UNode* userList = loadUsersFromFile("userList.txt");
+    if (userList == NULL) {
+        MessageBox(NULL, "读取用户文件失败！", "错误", MB_OK);
+        return;
+    }
+
+    // 3. 查找当前用户
+    UNode* targetNode = NULL;
+    UNode* p = userList;
+    while (p != NULL) {
+        if (strcmp(p->user.Uid, currentId) == 0) {
+            targetNode = p;
+            break;
+        }
+        p = p->next;
+    }
+
+    if (targetNode == NULL) {
+        cleardevice();
+        setfont(40, 0, "楷体");
+        //settextcolor(RED);
+        outtextxy(250, 240, "未找到该用户信息！");
+        getch();
+        freeList(userList);
+        return;
+    }
+
+    // 4. 进入修改界面 (传入找到的节点和链表头以便保存)
+    initModifyUserUI(targetNode, userList);
+
+    // 5. 释放内存
+    freeList(userList);
+}
+
+void initModifyUserUI(UNode* node, UNode* head) {
+    bool running = true;
+
+    // --- 1. 初始化输入框 ---
+    setfont(20, 0, "楷书");
+    int dh = textheight("示例");
+
+    sys_edit editName, editId, editPwd, editTel;
+
+    // 用户名
+    editName.create(false);
+    editName.move(325, 200);
+    editName.size(250, dh + 8);
+    editName.setmaxlen(14);
+    editName.setbgcolor(PINK);
+    editName.setcolor(BLACK);
+    editName.setfont(20, 0, "宋体");
+    editName.visible(true);
+    editName.settext(node->user.name);
+
+    // 学号 (通常不建议修改学号，这里设为可改但逻辑上最好只读，按你的需求改为可改)
+    editId.create(false);
+    editId.move(325, 250);
+    editId.size(250, dh);
+    editId.setmaxlen(8);
+    editId.setbgcolor(PINK);
+    editId.setcolor(BLACK);
+    editId.setfont(20, 0, "宋体");
+    editId.visible(true);
+    editId.settext(node->user.Uid);
+    editId.setreadonly(true);
+
+    // 密码
+    editPwd.create(false);
+    editPwd.move(325, 300);
+    editPwd.size(250, dh);
+    editPwd.setmaxlen(20);
+    editPwd.setbgcolor(PINK);
+    editPwd.setcolor(BLACK);
+    editPwd.setfont(20, 0, "宋体");
+    editPwd.visible(true);
+    editPwd.settext(node->user.password);
+
+    // 电话
+    editTel.create(false);
+    editTel.move(325, 350);
+    editTel.size(250, dh);
+    editTel.setmaxlen(11);
+    editTel.setbgcolor(PINK);
+    editTel.setcolor(BLACK);
+    editTel.setfont(20, 0, "宋体");
+    editTel.visible(true);
+    editTel.settext(node->user.tel);
+
+    // 默认焦点给第一个
+    editName.setfocus();
+
+    // 按钮区域定义
+    int btn_w = 100, btn_h = 40;
+    int save_btn_x = 300, save_btn_y = 500;
+    int back_btn_x = 500, back_btn_y = 500;
+
+    // 标签绘制 (在循环外绘制一次背景，循环内只重绘按钮和输入框变化)
+    cleardevice();
+    setfont(60, 0, "华文行楷");
+    outtextxy(330, 45, "修改用户");
+    setfont(20, 0, "华文行楷");
+    setlinewidth(2);
+    setlinecolor(LIGHTGRAY);
+    line(100, 120, 800, 120);
+    setlinecolor(PINK);
+
+    outtextxy(330, 180, "用户名");
+    outtextxy(330, 230, "学号");
+    outtextxy(330, 280, "密码");
+    outtextxy(330, 330, "联系方式");
+
+    char msgBuf[100] = { 0 }; // 用于显示提示信息
+
+    while (running) {
+        // --- 处理消息 ---
+        bool needRedrawButtons = false;
+        bool hoverSave = false;
+        bool hoverBack = false;
+
+        while (mousemsg()) {
+            mouse_msg msg = getmouse();
+            int mx = msg.x;
+            int my = msg.y;
+            bool isLeftDown = (msg.is_left() && msg.is_down());
+
+            // 1. 检查是否点击了输入框 (切换焦点)
+            // 注意：sys_edit 旧版 API 可能需要手动 setfocus
+            if (mx >= 325 && mx <= 325 + 250 && my >= 200 && my <= 200 + dh && isLeftDown) {
+                editName.setfocus();
+            }
+            else if (mx >= 325 && mx <= 325 + 250 && my >= 300 && my <= 300 + dh &&isLeftDown) {
+                editId.setfocus();
+            }
+            else if (mx >= 325 && mx <= 325 + 250 && my >= 400 && my <= 400 + dh && isLeftDown) {
+                editPwd.setfocus();
+            }
+            else if (mx >= 325 && mx <= 325 + 250 && my >= 500 && my <= 500 + dh && isLeftDown) {
+                editTel.setfocus();
+            }
+
+            // 2. 检查保存按钮悬停
+            hoverSave = (mx >= save_btn_x && mx <= save_btn_x + btn_w && my >= save_btn_y && my <= save_btn_y + btn_h);
+
+            // 3. 检查返回按钮悬停
+            hoverBack = (mx >= back_btn_x && mx <= back_btn_x + btn_w && my >= back_btn_y && my <= back_btn_y + btn_h);
+
+            // 4. 处理点击
+            if (isLeftDown) {
+                if (hoverSave) {
+                    // --- 执行保存逻辑 ---
+                    char tempName[15] = { 0 }, tempId[9] = { 0 }, tempPwd[21] = { 0 }, tempTel[12] = { 0 };
+
+                    editName.gettext(sizeof(tempName), tempName);
+                    editId.gettext(sizeof(tempId), tempId);
+                    editPwd.gettext(sizeof(tempPwd), tempPwd);
+                    editTel.gettext(sizeof(tempTel), tempTel);
+
+                    // 校验
+                    if (strlen(tempName) == 0 || strlen(tempId) == 0 || strlen(tempPwd) == 0 || strlen(tempTel) == 0) {
+                        strcpy(msgBuf, "请填写完整所有信息！");
+                        settextcolor(RED);
+                    }
+                    else {
+                        // 更新内存
+                        strcpy(node->user.name, tempName);
+                        strcpy(node->user.Uid, tempId);
+                        strcpy(node->user.password, tempPwd);
+                        strcpy(node->user.tel, tempTel);
+
+                        // 保存到文件
+                        saveUsersToFile(head, "userList.txt");
+                            strcpy(msgBuf, "修改成功！已保存。");
+                            settextcolor(GREEN);
+                            // 延迟一下让用户看到，然后退出
+                            getch();
+                            running = false;
+                    }
+                    // 清空消息防止重复触发
+                    while (mousemsg()) getmouse();
+                }
+                else if (hoverBack) {
+                    running = false;
+                }
+            }
+
+            needRedrawButtons = true;
+        }
+
+        // 处理键盘 (ESC 退出)
+        if (kbhit()) {
+            key_msg kmsg = getkey();
+            if (kmsg.key == key_esc) {
+                running = false;
+            }
+            // 如果需要支持 Tab 切换焦点，可以在这里添加逻辑
+        }
+
+        // --- 重绘区域 ---
+
+        // 1. 重绘按钮 (避免闪烁，只重绘按钮区域)
+        // 保存按钮
+        if (hoverSave) {
+            setfillcolor(HOTPINK); setlinecolor(PINK);
+        }
+        else {
+            setfillcolor(PINK); setlinecolor(PINK);
+        }
+        fillrect(save_btn_x, save_btn_y, save_btn_x + btn_w, save_btn_y + btn_h);
+        rectangle(save_btn_x, save_btn_y, save_btn_x + btn_w, save_btn_y + btn_h);
+        settextcolor(BLACK);
+        outtextxy(save_btn_x + 20, save_btn_y + 10, "保存");
+
+        // 返回按钮
+        if (hoverBack) {
+            setfillcolor(HOTPINK); setlinecolor(PINK);
+        }
+        else {
+            setfillcolor(PINK); setlinecolor(PINK);
+        }
+        fillrect(back_btn_x, back_btn_y, back_btn_x + btn_w, back_btn_y + btn_h);
+        rectangle(back_btn_x, back_btn_y, back_btn_x + btn_w, back_btn_y + btn_h);
+        settextcolor(BLACK);
+        outtextxy(back_btn_x + 20, back_btn_y + 10, "返回");
+
+        // 2. 绘制提示信息
+        if (strlen(msgBuf) > 0) {
+            // 先擦除旧提示 (简单用背景色覆盖)
+            setfillcolor(WHITE);
+            fillrect(250, 540, 550, 570);
+
+            setfont(20, 0, "楷体");
+            outtextxy(250, 545, msgBuf);
+
+            // 如果不是成功退出的消息，过一会清空，防止一直显示
+            // 这里简化处理，每次循环都画，只有成功才退出
+        }
+
+        delay_fps(144);
+    }
+
+    // 销毁控件
+    editName.destroy();
+    editId.destroy();
+    editPwd.destroy();
+    editTel.destroy();
+}
+
+void checkRecord(char* Uid) {
+    RNode* recordList = loadRecordsFromFile("recordList.txt");
+
+    if (recordList == NULL) {
+        /*puts("No users found in the system or file error.");
+        system("pause");*/
+        return;
+    }
+
+    RNode* current = recordList;
+
+    cleardevice();
+
+    setfont(60, 0, "华文行楷");
+    outtextxy(330, 45, "查看记录");
+    setfont(20, 0, "楷体");
+    setlinewidth(2);
+    setlinecolor(LIGHTGRAY);
+    line(100, 120, 800, 120);
+    setlinecolor(PINK);
+
+    int gap = 130;
+    int startx = 105;
+
+    setfont(20, 0, "楷体");
+    xyprintf(startx, gap, "%7s\t %10s\t %14s\t %12s\t %16s\n", "学号", "机房号", "计算机号", "时间", "情况");
+
+    while (current != NULL) {
+        if (strcmp(Uid, current->record.Uid) == 0) {
+            gap += 20;
+            initCheckRecord(current, gap, startx);
+        }
+        current = current->next;
+    }
+
+    freeList(recordList);
+
+    getch();
+}
+
+void initCheckRecord(RNode* current, int gap, int startx) {
+    setfont(60, 0, "华文行楷");
+    outtextxy(330, 45, "查看记录");
+    setfont(20, 0, "楷体");
+    setlinewidth(2);
+    setlinecolor(LIGHTGRAY);
+    line(100, 120, 800, 120);
+    setlinecolor(PINK);
+
+    char status[15] = { 0 };
+
+    switch (current->record.status) {
+    case 0:
+        strcpy(status, "待签到");
+        break;
+    case 1:
+        strcpy(status, "使用中");
+        break;
+    case 2:
+        strcpy(status, "已完成");
+        break;
+    case 3:
+        strcpy(status, "已取消");
+        break;
+    }
+
+    xyprintf(startx, gap, "%s\t %9s\t %13s\t %20s\t %10s\n", current->record.Uid, current->record.CRid, current->record.Cid, current->record.time, status);
+}

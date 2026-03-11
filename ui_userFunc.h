@@ -7,6 +7,7 @@
 #include "list.h"
 #include "comroom.h"
 #include "computer.h"
+#include "ui_logIn.h"
 
 typedef struct {
     int y_top;
@@ -16,7 +17,10 @@ typedef struct {
     bool isValid;
 } RowButtonInfo1;
 
-void initUserFunc();
-void booking();
-
-void enterRoomDetail(CRNode* targetRoom, CNode* allComputers);
+void initUserFunc(char* Uid);
+void booking(char* Uid);
+void enterRoomDetail(CRNode* targetRoom, CNode* allComputers, char* Uid);
+void modifyUserInfo(char* Uid);
+void initModifyUserUI(UNode* node, UNode* head);
+void checkRecord(char* Uid);
+void initCheckRecord(RNode* current, int gap, int startx);

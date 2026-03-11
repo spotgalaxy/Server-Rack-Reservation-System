@@ -221,7 +221,7 @@ void initUserlogIn() {
 	cleardevice();
 
 	char name[15] = { 0 };
-	char id[9] = { 0 };
+	char id[15] = { 0 };
 	char pwd[21] = { 0 };
 
 	setfont(60, 0, "华文行楷");
@@ -326,6 +326,7 @@ void initUserlogIn() {
 				if (strlen(name) > 0 && strlen(id) > 0 && strlen(pwd) > 0) {
 
 					if (userLogIn(name, pwd)) {
+						
 						outtextxy(400, 500, "登录成功！");
 						getch();
 						
@@ -348,10 +349,11 @@ void initUserlogIn() {
 			}
 		}
 
-		delay_fps(60);  // 关键：让系统处理输入框消息
+		//delay_fps(60);  // 关键：让系统处理输入框消息
 	}
 	editName.destroy();
 	editId.destroy();
 	editPwd.destroy();
-	initUserFunc();
+
+	initUserFunc(id);
 }

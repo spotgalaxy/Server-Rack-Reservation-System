@@ -511,3 +511,137 @@ void deleteNode(CNode** head, const char* CRid, const char* Cid) {
         current = current->next;
     }
 }
+
+//订单管理链表
+
+RNode* createNode(Records record) {
+    RNode* newNode = (RNode*)malloc(sizeof(RNode));
+    if (!newNode) {
+        perror("Failed to allocate memory for RNode");
+        return NULL;
+    }
+
+    newNode->record = record;
+
+    newNode->curr = NULL;
+    newNode->next = NULL;
+
+    return newNode;
+}
+
+void addNode(RNode** head, Records record) {
+    RNode* newNode = createNode(record);
+    if (!newNode) return;
+
+    // 如果链表为空，新节点即为头节点
+    if (*head == NULL) {
+        *head = newNode;
+        return;
+    }
+
+    // 如果链表不为空，遍历找到最后一个节点
+    RNode* current = *head;
+    while (current->next != NULL) {
+        current = current->next;
+    }
+
+    // 将最后一个节点的 next 指向新节点
+    current->next = newNode;
+}
+
+RNode* loadRecordsFromFile(const char* filename) {
+    RNode* head = NULL;
+    FILE* fp = fopen(filename, "r");
+
+    if (!fp) {
+        // 文件不存在视为空链表，不报错
+        return NULL;
+    }
+
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), fp)) {
+        // 去除换行符
+        buffer[strcspn(buffer, "\n\r")] = '\0';
+        if (strlen(buffer) == 0) continue;
+
+        Records tempRecord = { 0 };
+
+        char status[10] = { 0 };
+        char time1[50] = { 0 };
+        char time2[50] = { 0 };
+
+        int count = sscanf(buffer, "%8[^ ] %9[^ ] %8[^ ] %50[^ ]  %50s[^ ] %10s[^\n]",
+            tempRecord.Uid, tempRecord.CRid, tempRecord.Cid, time1, time2, status);
+
+        sprintf(tempRecord.time, "%s %s", time1, time2);
+
+        tempRecord.status = atoi(status);
+
+        if (count >= 5) {
+            addNode(&head, tempRecord);
+        }
+    }
+
+    fclose(fp);
+    return head;
+}
+
+void saveRecordsToFile(RNode* head, const char* filename) {
+    FILE* fp = fopen(filename, "w");
+    if (!fp) {
+        perror("Failed to open file for saving");
+        return;
+    }
+
+    RNode* current = head;
+    while (current != NULL) {
+        // 访问节点内的 user 成员
+        fprintf(fp, "%s %s %s %s %d\n",
+            current->record.Uid,
+            current->record.CRid,
+            current->record.Cid,
+            current->record.time,
+            current->record.status
+        );
+
+        current = current->next;
+    }
+
+    fclose(fp);
+}
+
+void deleteNode(RNode** head, const char* time) {
+    if (head == NULL) {
+        return;
+    }
+
+    if (strcmp((*head)->record.time, time) == 0) {
+        RNode* temp = (*head);
+        (*head) = (*head)->next;
+        free(temp);
+        return;
+    }
+
+    RNode* prev = (*head);
+    RNode* current = (*head)->next;
+
+    while (current != NULL) {
+        if (strcmp((*head)->record.time, time) == 0) {
+            prev->next = current->next;
+            free(current);
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+}
+
+void freeList(RNode* head) {
+    RNode* temp;
+    while (head != NULL) {
+        temp = head;
+        head = head->next;
+
+        free(temp);
+    }
+}

@@ -3,6 +3,7 @@
 #include "user.h"
 #include "comroom.h"
 #include "computer.h"
+#include "record.h"
 
 
 
@@ -70,3 +71,15 @@ CNode* findComputers(CNode* head, const char* CRid, const char* Cid);
 void showComputers(CNode* head);
 
 void deleteNode(CNode** head, const char* CRid, const char* Cid);
+
+RNode* createNode(Records record);
+
+void addNode(RNode** head, Records record);
+
+RNode* loadRecordsFromFile(const char* filename);
+
+void saveRecordsToFile(RNode* head, const char* filename);
+
+void deleteNode(RNode** head, const char* time);
+
+void freeList(RNode* head);
