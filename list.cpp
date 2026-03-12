@@ -299,6 +299,7 @@ CRNode* findComrooms(CRNode* head, const char* CRid) {
         if (strcmp(CRid, current->comroom.CRid) == 0) {
             return current;
         }
+        current = current->next;
     }
     return NULL;
 }
@@ -472,6 +473,7 @@ CNode* findComputers(CNode* head, const char* CRid, const char* Cid) {
         if (strcmp(CRid, current->computer.CRid) == 0 && strcmp(Cid, current->computer.Cid) == 0) {
             return current;
         }
+        current = current->next;
     }
     return NULL;
 }
@@ -570,7 +572,7 @@ RNode* loadRecordsFromFile(const char* filename) {
         char time1[50] = { 0 };
         char time2[50] = { 0 };
 
-        int count = sscanf(buffer, "%8[^ ] %9[^ ] %8[^ ] %50[^ ]  %50s[^ ] %10s[^\n]",
+        int count = sscanf(buffer, "%8[^ ] %9[^ ] %8[^ ] %50[^ ]  %50[^ ] %10[^\n]",
             tempRecord.Uid, tempRecord.CRid, tempRecord.Cid, time1, time2, status);
 
         sprintf(tempRecord.time, "%s %s", time1, time2);

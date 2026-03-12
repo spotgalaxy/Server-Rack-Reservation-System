@@ -191,7 +191,7 @@ void initUserFunc(char* Uid) {
 			}
 
 			if (mx >= 300 - gap && mx <= 300 + gw + gap && my >= 400 - gap && my <= 400 + gh + gap && msg.is_left() && msg.is_up()) {
-				//签到
+                signIn(Uid);
 
 				cleardevice();
 				setfont(60, 0, "华文行楷");
@@ -1029,4 +1029,370 @@ void initCheckRecord(RNode* current, int gap, int startx) {
     }
 
     xyprintf(startx, gap, "%s\t %9s\t %13s\t %20s\t %10s\n", current->record.Uid, current->record.CRid, current->record.Cid, current->record.time, status);
+}
+
+void signIn(char* Uid) {
+    RNode* recordList = loadRecordsFromFile("recordList.txt");
+    CNode* computerList = loadComputersFromFile("computerList.txt");
+
+    if (recordList == NULL || computerList == NULL) {
+        return;
+    }
+
+    cleardevice();
+
+    // --- 界面标题绘制 ---
+    setfont(60, 0, "华文行楷");
+    outtextxy(330, 45, "签到签退");
+    setfont(20, 0, "楷体");
+    setlinewidth(2);
+    setlinecolor(LIGHTGRAY);
+    line(100, 120, 800, 120);
+    setlinecolor(PINK);
+
+    int startx = 50;
+    int base_gap = 150;
+    int row_height = 40;
+
+    // 用于存储所有行的按钮信息
+    typedef struct {
+        int y_top;
+        int y_bottom;
+        RNode* nodePtr;
+        bool isValid;
+    } SignInRowInfo;
+
+    SignInRowInfo rows[100];
+    int rowCount = 0;
+
+    // 初始化数组
+    for (int i = 0; i < 100; i++) rows[i].isValid = false;
+
+    int gap = base_gap;
+
+    // --- 绘制表头 ---
+    setfont(20, 0, "楷体");
+    settextcolor(BLACK);
+    xyprintf(startx, gap, "%6s\t %10s\t %12s\t %15s\t %14s\t %8s\t %8s",
+        "学号", "机房号", "计算机号", "时间", "状态", "操作1", "操作2");
+    gap += row_height;
+
+    // 计算按钮尺寸
+    setfont(18, 0, "楷体");
+    int btn1_w = textwidth("签退") + 20;
+    int btn1_h = textheight("签退") + 6;
+    int btn2_w = textwidth("退订") + 20;
+    int btn2_h = textheight("退订") + 6;
+
+    // 按钮位置
+    int btn1_x_start = 700;
+    int btn1_x_end = btn1_x_start + btn1_w;
+    int btn2_x_start = btn1_x_end + 25;
+    int btn2_x_end = btn2_x_start + btn2_w;
+
+    RNode* current = recordList;
+    int count = 0;
+
+    // --- 绘制列表并记录按钮坐标 ---
+    while (current != NULL && count < 100) {
+        // 只显示当前用户的记录
+        if (strcmp(Uid, current->record.Uid) == 0) {
+            char statusStr[15] = { 0 };
+            char btn1Text[10] = { 0 };
+            bool canSignIn = false;
+            bool canCancel = false;
+
+            // 根据状态设置显示文字和按钮可用性
+            switch (current->record.status) {
+            case 0:
+                strcpy(statusStr, "待签到");
+                strcpy(btn1Text, "签到");
+                canSignIn = true;
+                canCancel = true;
+                break;
+            case 1:
+                strcpy(statusStr, "使用中");
+                strcpy(btn1Text, "签退");
+                canSignIn = true;
+                canCancel = false;
+                break;
+            case 2:
+                strcpy(statusStr, "已完成");
+                canSignIn = false;
+                canCancel = false;
+                break;
+            case 3:
+                strcpy(statusStr, "已取消");
+                canSignIn = false;
+                canCancel = false;
+                break;
+            default:
+                strcpy(statusStr, "未知");
+                canSignIn = false;
+                canCancel = false;
+                break;
+            }
+
+            // 绘制文本信息
+            settextcolor(BLACK);
+            xyprintf(startx, gap, "%s\t %9s\t %13s\t %26s\t %10s",
+                current->record.Uid,
+                current->record.CRid,
+                current->record.Cid,
+                current->record.time,
+                statusStr);
+
+            // 记录这一行的按钮信息
+            rows[count].y_top = gap - 2;
+            rows[count].y_bottom = gap + btn1_h + 2;
+            rows[count].nodePtr = current;
+            rows[count].isValid = true;
+
+            // 绘制第一个按钮（签到/签退）
+            if (canSignIn) {
+                setfillcolor(PINK);
+                setlinecolor(PINK);
+                fillrect(btn1_x_start, rows[count].y_top, btn1_x_end, rows[count].y_bottom);
+                rectangle(btn1_x_start, rows[count].y_top, btn1_x_end, rows[count].y_bottom);
+                settextcolor(BLACK);
+                int textX = btn1_x_start + (btn1_w - textwidth(btn1Text)) / 2;
+                outtextxy(textX, rows[count].y_top + 4, btn1Text);
+            }
+
+            // 绘制第二个按钮（退订）- 只有待签到状态才显示
+            if (canCancel) {
+                setfillcolor(PINK);
+                setlinecolor(PINK);
+                fillrect(btn2_x_start, rows[count].y_top, btn2_x_end, rows[count].y_bottom);
+                rectangle(btn2_x_start, rows[count].y_top, btn2_x_end, rows[count].y_bottom);
+                settextcolor(BLACK);
+                int textX = btn2_x_start + (btn2_w - textwidth("退订")) / 2;
+                outtextxy(textX, rows[count].y_top + 4, "退订");
+            }
+
+            rowCount++;
+            count++;
+        }
+        current = current->next;
+        gap += row_height;
+    }
+
+    if (rowCount == 0) {
+        settextcolor(BLACK);
+        outtextxy(300, 300, "暂无记录");
+        getch();
+        freeList(recordList);
+        freeList(computerList);
+        return;
+    }
+
+    // --- 绘制返回按钮 ---
+    int back_btn_x = 350;
+    int back_btn_y = 550;
+    int back_btn_w = 100;
+    int back_btn_h = 40;
+
+    setfillcolor(PINK);
+    setlinecolor(PINK);
+    fillrect(back_btn_x, back_btn_y, back_btn_x + back_btn_w, back_btn_y + back_btn_h);
+    rectangle(back_btn_x, back_btn_y, back_btn_x + back_btn_w, back_btn_y + back_btn_h);
+    settextcolor(BLACK);
+    outtextxy(back_btn_x + 35, back_btn_y + 10, "返回");
+
+    // --- 鼠标交互循环 ---
+    bool running = true;
+    int lastHoveredIndex = -1;
+    int lastHoveredBtn = 0; // 1表示第一个按钮，2表示第二个按钮
+    bool backBtnHovered = false;
+
+    while (running) {
+        while (mousemsg()) {
+            mouse_msg msg = getmouse();
+            int mx = msg.x;
+            int my = msg.y;
+            bool isLeftClick = (msg.is_left() && msg.is_down());
+
+            int hoveredIndex = -1;
+            int hoveredBtn = 0;
+
+            // 检查列表中的按钮
+            for (int i = 0; i < rowCount; i++) {
+                if (!rows[i].isValid) continue;
+
+                RNode* node = rows[i].nodePtr;
+                bool canSignIn = (node->record.status == 0 || node->record.status == 1);
+                bool canCancel = (node->record.status == 0);
+
+                // 检查第一个按钮
+                if (canSignIn && mx >= btn1_x_start && mx <= btn1_x_end &&
+                    my >= rows[i].y_top && my <= rows[i].y_bottom) {
+                    hoveredIndex = i;
+                    hoveredBtn = 1;
+
+                    if (isLeftClick) {
+                        // 执行签到/签退逻辑
+                        if (node->record.status == 0) {
+                            node->record.status = 1; // 待签到 -> 使用中
+                        }
+                        else if (node->record.status == 1) {
+                            node->record.status = 2; // 使用中 -> 已完成
+                            CNode* current1 = findComputers(computerList, node->record.CRid, node->record.Cid);
+                            if (current1 != NULL) {
+                                current1->computer.isOpen = true;
+                            }
+                        }
+
+                        // 保存到文件
+                        saveRecordsToFile(recordList, "recordList.txt");
+                        saveComputersToFile(computerList, "computerList.txt");
+
+                        // 刷新界面
+                        cleardevice();
+                        setfont(40, 0, "楷体");
+                        settextcolor(BLACK);
+                        char msgBuf[100];
+                        if (node->record.status == 1) {
+                            sprintf(msgBuf, "签到成功！");
+                        }
+                        else {
+                            sprintf(msgBuf, "签退成功！");
+                        }
+                        outtextxy(300, 240, msgBuf);
+                        outtextxy(250, 300, "按任意键返回...");
+                        getch();
+                        running = false;
+                        break;
+                    }
+                    break;
+                }
+
+                // 检查第二个按钮（退订）
+                if (canCancel && mx >= btn2_x_start && mx <= btn2_x_end &&
+                    my >= rows[i].y_top && my <= rows[i].y_bottom) {
+                    hoveredIndex = i;
+                    hoveredBtn = 2;
+
+                    if (isLeftClick) {
+                        // 执行退订逻辑
+                        node->record.status = 3; // 设置为已取消
+                        CNode* current1 = findComputers(computerList, node->record.CRid, node->record.Cid);
+                        if (current1 != NULL) {
+                            current1->computer.isOpen = true;
+                        }
+
+                        // 保存到文件
+                        saveRecordsToFile(recordList, "recordList.txt");
+                        saveComputersToFile(computerList, "computerList.txt");
+
+                        // 刷新界面
+                        cleardevice();
+                        setfont(40, 0, "楷体");
+                        settextcolor(BLACK);
+                        outtextxy(300, 240, "退订成功！");
+                        outtextxy(250, 300, "按任意键返回...");
+                        getch();
+                        running = false;
+                        break;
+                    }
+                    break;
+                }
+            }
+
+            if (!running) break;
+
+            // 检查返回按钮
+            bool isBackHovered = (mx >= back_btn_x && mx <= back_btn_x + back_btn_w &&
+                my >= back_btn_y && my <= back_btn_y + back_btn_h);
+
+            if (isBackHovered && isLeftClick) {
+                running = false;
+                break;
+            }
+
+            // --- 重绘按钮状态（悬停高亮） ---
+            if (hoveredIndex != lastHoveredIndex || hoveredBtn != lastHoveredBtn) {
+                // 恢复上一个按钮状态
+                if (lastHoveredIndex != -1 && lastHoveredIndex < rowCount && rows[lastHoveredIndex].isValid) {
+                    RNode* prevNode = rows[lastHoveredIndex].nodePtr;
+
+                    if (lastHoveredBtn == 1) {
+                        // 恢复第一个按钮
+                        bool canSignIn = (prevNode->record.status == 0 || prevNode->record.status == 1);
+                        if (canSignIn) {
+                            setfillcolor(PINK);
+                            setlinecolor(PINK);
+                            fillrect(btn1_x_start, rows[lastHoveredIndex].y_top, btn1_x_end, rows[lastHoveredIndex].y_bottom);
+                            rectangle(btn1_x_start, rows[lastHoveredIndex].y_top, btn1_x_end, rows[lastHoveredIndex].y_bottom);
+                            settextcolor(BLACK);
+                            const char* btnText = (prevNode->record.status == 0) ? "签到" : "签退";
+                            int textX = btn1_x_start + (btn1_w - textwidth(btnText)) / 2;
+                            outtextxy(textX, rows[lastHoveredIndex].y_top + 4, btnText);
+                        }
+                    }
+                    else if (lastHoveredBtn == 2) {
+                        // 恢复第二个按钮
+                        bool canCancel = (prevNode->record.status == 0);
+                        if (canCancel) {
+                            setfillcolor(PINK);
+                            setlinecolor(PINK);
+                            fillrect(btn2_x_start, rows[lastHoveredIndex].y_top, btn2_x_end, rows[lastHoveredIndex].y_bottom);
+                            rectangle(btn2_x_start, rows[lastHoveredIndex].y_top, btn2_x_end, rows[lastHoveredIndex].y_bottom);
+                            settextcolor(BLACK);
+                            int textX = btn2_x_start + (btn2_w - textwidth("退订")) / 2;
+                            outtextxy(textX, rows[lastHoveredIndex].y_top + 4, "退订");
+                        }
+                    }
+                }
+
+                // 绘制当前悬停按钮（高亮）
+                if (hoveredIndex != -1) {
+                    RNode* currNode = rows[hoveredIndex].nodePtr;
+
+                    if (hoveredBtn == 1) {
+                        setfillcolor(HOTPINK);
+                        setlinecolor(PINK);
+                        fillrect(btn1_x_start, rows[hoveredIndex].y_top, btn1_x_end, rows[hoveredIndex].y_bottom);
+                        rectangle(btn1_x_start, rows[hoveredIndex].y_top, btn1_x_end, rows[hoveredIndex].y_bottom);
+                        settextcolor(BLACK);
+                        const char* btnText = (currNode->record.status == 0) ? "签到" : "签退";
+                        int textX = btn1_x_start + (btn1_w - textwidth(btnText)) / 2;
+                        outtextxy(textX, rows[hoveredIndex].y_top + 4, btnText);
+                    }
+                    else if (hoveredBtn == 2) {
+                        setfillcolor(HOTPINK);
+                        setlinecolor(PINK);
+                        fillrect(btn2_x_start, rows[hoveredIndex].y_top, btn2_x_end, rows[hoveredIndex].y_bottom);
+                        rectangle(btn2_x_start, rows[hoveredIndex].y_top, btn2_x_end, rows[hoveredIndex].y_bottom);
+                        settextcolor(BLACK);
+                        int textX = btn2_x_start + (btn2_w - textwidth("退订")) / 2;
+                        outtextxy(textX, rows[hoveredIndex].y_top + 4, "退订");
+                    }
+                }
+
+                lastHoveredIndex = hoveredIndex;
+                lastHoveredBtn = hoveredBtn;
+            }
+
+            // 重绘返回按钮高亮
+            if (isBackHovered != backBtnHovered) {
+                if (isBackHovered) {
+                    setfillcolor(HOTPINK);
+                    setlinecolor(PINK);
+                }
+                else {
+                    setfillcolor(PINK);
+                    setlinecolor(PINK);
+                }
+                fillrect(back_btn_x, back_btn_y, back_btn_x + back_btn_w, back_btn_y + back_btn_h);
+                rectangle(back_btn_x, back_btn_y, back_btn_x + back_btn_w, back_btn_y + back_btn_h);
+                settextcolor(BLACK);
+                outtextxy(back_btn_x + 35, back_btn_y + 10, "返回");
+                backBtnHovered = isBackHovered;
+            }
+        }
+    }
+
+    // 清理资源
+    freeList(recordList);
+    freeList(computerList);
 }

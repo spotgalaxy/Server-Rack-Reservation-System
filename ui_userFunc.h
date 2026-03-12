@@ -17,6 +17,15 @@ typedef struct {
     bool isValid;
 } RowButtonInfo1;
 
+typedef struct {
+    RNode* nodePtr;
+    int btnAction_x, btnAction_y, btnAction_w, btnAction_h; // Ç©µ½/Ç©ÍË°´Å¥
+    int btnCancel_x, btnCancel_y, btnCancel_w, btnCancel_h; // ÍË¶©°´Å¥
+    bool hasActionBtn;
+    bool hasCancelBtn;
+    char actionText[10];
+} RowInfo;
+
 void initUserFunc(char* Uid);
 void booking(char* Uid);
 void enterRoomDetail(CRNode* targetRoom, CNode* allComputers, char* Uid);
@@ -24,3 +33,4 @@ void modifyUserInfo(char* Uid);
 void initModifyUserUI(UNode* node, UNode* head);
 void checkRecord(char* Uid);
 void initCheckRecord(RNode* current, int gap, int startx);
+void signIn(char* Uid);
