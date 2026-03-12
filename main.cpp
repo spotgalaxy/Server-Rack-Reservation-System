@@ -1,27 +1,33 @@
 #include "register.h"
 #include "logIn.h"
+#include "ui_main.h"
 
 int main() {
-	while (1) {
-		puts("1.log in\n2.register\n3.exit");
+	initMnue();
+	/*while (1) {
+		puts("Server-Rack-Reservation-System\n");
+		puts("1.log in\n2.register\n0.exit\n");
+
+		printf("Enter your choice: ");
 		int choice;
 		scanf("%d", &choice);
 
 		switch (choice) {
 		case 1:
-			LogIn();
+			system("cls");
+			logIn();
 			break;
 		case 2:
 			system("cls");
 			Register();
 			break;
-		case 3:
+		case 0:
 			exit(5);
 		default:
 			break;
 		}
 		system("cls");
-	}
+	}*/
 	
 	return 0;
 }

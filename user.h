@@ -2,7 +2,7 @@
 #include "header.h"
 
 typedef struct Users {
-	char Uid[7];
+	char Uid[9];
 	char name[15];
 	char password[21];
 	char tel[12];
@@ -11,6 +11,9 @@ typedef struct Users {
 
 typedef struct UNode {
 	Users user;
-	Users* curr;
-	Users* next;
+	UNode* curr;
+	UNode* next;
 }UNode;
+
+void userMnue();
+void Booking();

@@ -4,11 +4,11 @@
 typedef struct Computers {
 	char Cid[7];
 	char CRid[7];
-	bool isUsed;
+	bool isOpen;
 }Computers;
 
 typedef struct CNode {
 	Computers computer;
-	Computers* curr;
-	Computers* next;
+	CNode* curr;
+	CNode* next;
 }CNode;
