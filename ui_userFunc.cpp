@@ -1142,6 +1142,8 @@ void signIn(char* Uid) {
                 current->record.time,
                 statusStr);
 
+            gap += row_height;
+
             // 记录这一行的按钮信息
             rows[count].y_top = gap - 2;
             rows[count].y_bottom = gap + btn1_h + 2;
@@ -1174,7 +1176,7 @@ void signIn(char* Uid) {
             count++;
         }
         current = current->next;
-        gap += row_height;
+        
     }
 
     if (rowCount == 0) {
